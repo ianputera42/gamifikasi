@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Kuis Interaktif</title>
+    <title>EduQuiz Interactive Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -204,23 +204,6 @@
             }
         }
         
-        /* Loading Animation */
-        .loading-dots {
-            display: inline-block;
-        }
-        
-        .loading-dots::after {
-            content: '';
-            animation: dots 1.5s steps(5, end) infinite;
-        }
-        
-        @keyframes dots {
-            0%, 20% { content: ''; }
-            40% { content: '.'; }
-            60% { content: '..'; }
-            80%, 100% { content: '...'; }
-        }
-        
         /* Educational Background Pattern */
         .edu-pattern {
             background-image: 
@@ -230,7 +213,46 @@
                 radial-gradient(circle at 25% 75%, rgba(236, 201, 75, 0.1) 0%, transparent 50%);
         }
         
-        /* Responsive styles untuk mobile */
+        /* Teacher Code Item Animation */
+        .teacher-code-item {
+            animation: slideInBounce 0.6s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Teacher Tab Styles */
+        .teacher-tab {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .teacher-tab.active {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+        
+        .teacher-tab:hover:not(.active) {
+            color: #2563eb;
+            background-color: rgba(37, 99, 235, 0.05);
+        }
+        
+        /* Owner Tab Styles */
+        .owner-tab {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .owner-tab.active {
+            color: #dc2626;
+            border-bottom-color: #dc2626;
+        }
+        
+        .owner-tab:hover:not(.active) {
+            color: #dc2626;
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+        
+        /* Responsive styles */
         @media (max-width: 640px) {
             .quiz-embed {
                 height: 300px;
@@ -287,12 +309,12 @@
             
             <!-- Mode Selection Buttons -->
             <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6 mb-6">
-                <button id="teacherModeBtn" class="mode-toggle active text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg">
+                <button id="teacherModeBtn" class="mode-toggle text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg">
                     <span class="block text-sm text-white text-opacity-80 mb-1">Mode:</span>
                     <span class="text-2xl">👨‍🏫 Guru</span>
                 </button>
                 
-                <button id="studentModeBtn" class="mode-toggle text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg">
+                <button id="studentModeBtn" class="mode-toggle active text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg">
                     <span class="block text-sm text-white text-opacity-80 mb-1">Mode:</span>
                     <span class="text-2xl">👨‍🎓 Siswa</span>
                 </button>
@@ -313,14 +335,14 @@
 
     <main class="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <!-- Panel Input Nama Siswa -->
-        <div id="studentNamePanel" class="hidden mb-8">
+        <div id="studentNamePanel" class="mb-8">
             <div class="quiz-card rounded-xl shadow-lg p-6 text-center">
                 <div class="text-6xl mb-4 edu-icon">🎓</div>
                 <h2 class="text-2xl font-bold text-gray-800 mb-4">👋 Selamat Datang, Siswa!</h2>
                 <p class="text-gray-600 mb-6">Masukkan nama kamu untuk mulai bermain dan mengumpulkan XP</p>
                 <div class="max-w-md mx-auto">
                     <input type="text" id="studentNameInput" class="w-full px-4 py-3 border-2 border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-center text-lg transition-all" placeholder="Masukkan nama kamu...">
-                    <button id="startPlaying" class="btn-animated w-full mt-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 px-6 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg" disabled>
+                    <button id="startPlaying" class="btn-animated w-full mt-4 bg-gray-400 text-white py-3 px-6 rounded-lg font-semibold cursor-not-allowed transition-all shadow-lg" disabled>
                         🚀 Mulai Bermain!
                     </button>
                 </div>
@@ -335,74 +357,251 @@
                 <p class="text-gray-600 mb-6">Masukkan kode akses guru untuk melanjutkan</p>
                 <div class="max-w-md mx-auto">
                     <input type="password" id="teacherAccessCode" class="w-full px-4 py-3 border-2 border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-lg transition-all font-mono" placeholder="Masukkan kode akses...">
-                    <button id="verifyTeacherAccess" class="btn-animated w-full mt-4 bg-gradient-to-r from-blue-500 to-indigo-500 text-white py-3 px-6 rounded-lg font-semibold hover:from-blue-600 hover:to-indigo-600 transition-all shadow-lg" disabled>
+                    <button id="verifyTeacherAccess" class="btn-animated w-full mt-4 bg-gray-400 text-white py-3 px-6 rounded-lg font-semibold cursor-not-allowed transition-all shadow-lg" disabled>
                         🔓 Verifikasi Akses
                     </button>
                     <p class="text-xs text-gray-500 mt-3">
-                        <!-- Kode Akses Guru: GURU2024EDU -->
                         Hubungi administrator untuk mendapatkan kode akses
                     </p>
                 </div>
             </div>
         </div>
 
+        <!-- Panel Akses Owner -->
+        <div id="ownerAccessPanel" class="hidden mb-8">
+            <div class="quiz-card rounded-xl shadow-lg p-6 text-center border-2 border-red-200">
+                <div class="text-6xl mb-4 edu-icon">👑</div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">🔒 Akses Mode Owner</h2>
+                <p class="text-gray-600 mb-6">Masukkan kode owner untuk mengakses panel administrasi</p>
+                <div class="max-w-md mx-auto">
+                    <input type="password" id="ownerAccessCode" class="w-full px-4 py-3 border-2 border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-center text-lg transition-all font-mono" placeholder="Masukkan kode owner...">
+                    <button id="verifyOwnerAccess" class="btn-animated w-full mt-4 bg-gray-400 text-white py-3 px-6 rounded-lg font-semibold cursor-not-allowed transition-all shadow-lg" disabled>
+                        👑 Verifikasi Owner
+                    </button>
+                    <p class="text-xs text-red-500 mt-3">
+                        ⚠️ Hanya untuk pemilik sistem
+                    </p>
+                </div>
+            </div>
+        </div>
+
         <!-- Panel Guru -->
-        <div id="teacherPanel" class="mb-8">
+        <div id="teacherPanel" class="hidden mb-8">
             <div class="quiz-card rounded-xl shadow-lg p-6">
                 <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-2xl font-bold text-gray-800">➕ Tambah Kuis/Game Baru</h2>
+                    <h2 class="text-2xl font-bold text-gray-800">👨‍🏫 Dashboard Guru</h2>
                     <button id="logoutTeacher" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors text-sm font-semibold">
                         🚪 Keluar Mode Guru
                     </button>
                 </div>
                 
-                <form id="quizForm" class="space-y-6">
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <label for="quizTitle" class="block text-sm font-medium text-gray-700 mb-2">Judul Materi Kuis/Game</label>
-                            <input type="text" id="quizTitle" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Contoh: Matematika Dasar">
+                <!-- Tab Navigation for Teacher -->
+                <div class="flex space-x-2 mb-6 border-b border-gray-200">
+                    <button id="teacherTabQuizManagement" class="teacher-tab active px-4 py-2 font-semibold text-blue-600 border-b-2 border-blue-600">
+                        🎮 Kelola Kuis
+                    </button>
+                    <button id="teacherTabLeaderboard" class="teacher-tab px-4 py-2 font-semibold text-gray-600 hover:text-blue-600">
+                        🏆 Leaderboard
+                    </button>
+                </div>
+
+                <!-- Tab Content: Quiz Management for Teacher -->
+                <div id="teacherQuizTab" class="teacher-tab-content">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">➕ Tambah Kuis/Game Baru</h3>
+                    <form id="teacherQuizForm" class="space-y-6">
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="teacherQuizTitle" class="block text-sm font-medium text-gray-700 mb-2">Judul Materi Kuis/Game</label>
+                                <input type="text" id="teacherQuizTitle" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Contoh: Matematika Dasar">
+                            </div>
+                            <div>
+                                <label for="teacherQuizGrade" class="block text-sm font-medium text-gray-700 mb-2">Fase/Kelas</label>
+                                <select id="teacherQuizGrade" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option value="">Pilih Fase/Kelas</option>
+                                    <option value="Fase A (Kelas 1-2)">Fase A (Kelas 1-2)</option>
+                                    <option value="Fase B (Kelas 3-4)">Fase B (Kelas 3-4)</option>
+                                    <option value="Fase C (Kelas 5-6)">Fase C (Kelas 5-6)</option>
+                                    <option value="Fase D (Kelas 7-9)">Fase D (Kelas 7-9)</option>
+                                    <option value="Fase E (Kelas 10)">Fase E (Kelas 10)</option>
+                                    <option value="Fase F (Kelas 11-12)">Fase F (Kelas 11-12)</option>
+                                </select>
+                            </div>
                         </div>
+                        
                         <div>
-                            <label for="quizGrade" class="block text-sm font-medium text-gray-700 mb-2">Fase/Kelas</label>
-                            <select id="quizGrade" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                                <option value="">Pilih Fase/Kelas</option>
-                                <option value="Fase A (Kelas 1-2)">Fase A (Kelas 1-2)</option>
-                                <option value="Fase B (Kelas 3-4)">Fase B (Kelas 3-4)</option>
-                                <option value="Fase C (Kelas 5-6)">Fase C (Kelas 5-6)</option>
-                                <option value="Fase D (Kelas 7-9)">Fase D (Kelas 7-9)</option>
-                                <option value="Fase E (Kelas 10)">Fase E (Kelas 10)</option>
-                                <option value="Fase F (Kelas 11-12)">Fase F (Kelas 11-12)</option>
+                            <label for="teacherLearningObjective" class="block text-sm font-medium text-gray-700 mb-2">Tujuan Pembelajaran</label>
+                            <textarea id="teacherLearningObjective" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Siswa dapat memahami dan menerapkan..."></textarea>
+                        </div>
+
+                        <div>
+                            <label for="teacherDifficulty" class="block text-sm font-medium text-gray-700 mb-2">Tingkat Kesulitan</label>
+                            <select id="teacherDifficulty" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">Pilih Tingkat Kesulitan</option>
+                                <option value="mudah">🟢 Mudah (50 XP)</option>
+                                <option value="sedang">🟡 Sedang (75 XP)</option>
+                                <option value="sulit">🔴 Sulit (100 XP)</option>
                             </select>
                         </div>
-                    </div>
-                    
-                    <div>
-                        <label for="learningObjective" class="block text-sm font-medium text-gray-700 mb-2">Tujuan Pembelajaran</label>
-                        <textarea id="learningObjective" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Siswa dapat memahami dan menerapkan..."></textarea>
-                    </div>
+                        
+                        <div>
+                            <label for="teacherEmbedCode" class="block text-sm font-medium text-gray-700 mb-2">Kode Embed HTML Kuis</label>
+                            <textarea id="teacherEmbedCode" rows="6" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm" placeholder='Contoh: <iframe src="https://wordwall.net/embed/..." width="100%" height="400"></iframe>'></textarea>
+                            <p class="text-sm text-gray-500 mt-1">Mendukung: Scratch, Wordwall, Canva, Google Form, Quizizz (paste kode embed HTML lengkap)</p>
+                        </div>
+                        
+                        <button type="submit" id="teacherSubmitBtn" class="w-full bg-gray-400 text-white py-3 px-6 rounded-lg font-semibold cursor-not-allowed" disabled>
+                            Tambah Kuis/Game
+                        </button>
+                    </form>
+                </div>
 
-                    <div>
-                        <label for="difficulty" class="block text-sm font-medium text-gray-700 mb-2">Tingkat Kesulitan</label>
-                        <select id="difficulty" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                            <option value="">Pilih Tingkat Kesulitan</option>
-                            <option value="mudah">🟢 Mudah (50 XP)</option>
-                            <option value="sedang">🟡 Sedang (75 XP)</option>
-                            <option value="sulit">🔴 Sulit (100 XP)</option>
-                        </select>
+                <!-- Tab Content: Leaderboard for Teacher -->
+                <div id="teacherLeaderboardTab" class="teacher-tab-content hidden">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800">🏆 Leaderboard Siswa</h3>
+                        <button id="teacherRefreshLeaderboard" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm font-semibold btn-animated">
+                            🔄 Refresh
+                        </button>
                     </div>
-                    
-                    <div>
-                        <label for="embedCode" class="block text-sm font-medium text-gray-700 mb-2">Kode Embed HTML Kuis</label>
-                        <textarea id="embedCode" rows="6" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono text-sm" placeholder='Contoh: <iframe src="https://wordwall.net/embed/..." width="100%" height="400"></iframe>'></textarea>
-                        <p class="text-sm text-gray-500 mt-1">Mendukung: Scratch, Wordwall, Canva, Google Form, Quizizz (paste kode embed HTML lengkap)</p>
+                    <div id="teacherLeaderboard" class="space-y-3">
+                        <!-- Leaderboard untuk guru akan diisi secara dinamis -->
                     </div>
-                    
-                    <button type="submit" id="submitBtn" class="w-full bg-gray-400 text-white py-3 px-6 rounded-lg font-semibold cursor-not-allowed" disabled>
-                        Tambah Kuis/Game
-                    </button>
-                </form>
+                </div>
             </div>
         </div>
+
+        <!-- Panel Owner -->
+        <div id="ownerPanel" class="hidden mb-8">
+            <div class="quiz-card rounded-xl shadow-lg p-6 border-2 border-red-200">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">👑 Panel Owner - Administrasi Sistem</h2>
+                    <button id="logoutOwner" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors text-sm font-semibold">
+                        🚪 Keluar Mode Owner
+                    </button>
+                </div>
+                
+                <!-- Tab Navigation -->
+                <div class="flex space-x-2 mb-6 border-b border-gray-200">
+                    <button id="tabQuizManagement" class="owner-tab active px-4 py-2 font-semibold text-red-600 border-b-2 border-red-600">
+                        🎮 Kelola Kuis
+                    </button>
+                    <button id="tabTeacherCodes" class="owner-tab px-4 py-2 font-semibold text-gray-600 hover:text-red-600">
+                        🔑 Kode Guru
+                    </button>
+                    <button id="tabLeaderboard" class="owner-tab px-4 py-2 font-semibold text-gray-600 hover:text-red-600">
+                        🏆 Leaderboard
+                    </button>
+                </div>
+
+                <!-- Tab Content: Quiz Management -->
+                <div id="ownerQuizTab" class="owner-tab-content">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">➕ Tambah Kuis/Game Baru</h3>
+                    <form id="ownerQuizForm" class="space-y-6">
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="ownerQuizTitle" class="block text-sm font-medium text-gray-700 mb-2">Judul Materi Kuis/Game</label>
+                                <input type="text" id="ownerQuizTitle" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" placeholder="Contoh: Matematika Dasar">
+                            </div>
+                            <div>
+                                <label for="ownerQuizGrade" class="block text-sm font-medium text-gray-700 mb-2">Fase/Kelas</label>
+                                <select id="ownerQuizGrade" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                                    <option value="">Pilih Fase/Kelas</option>
+                                    <option value="Fase A (Kelas 1-2)">Fase A (Kelas 1-2)</option>
+                                    <option value="Fase B (Kelas 3-4)">Fase B (Kelas 3-4)</option>
+                                    <option value="Fase C (Kelas 5-6)">Fase C (Kelas 5-6)</option>
+                                    <option value="Fase D (Kelas 7-9)">Fase D (Kelas 7-9)</option>
+                                    <option value="Fase E (Kelas 10)">Fase E (Kelas 10)</option>
+                                    <option value="Fase F (Kelas 11-12)">Fase F (Kelas 11-12)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="ownerLearningObjective" class="block text-sm font-medium text-gray-700 mb-2">Tujuan Pembelajaran</label>
+                            <textarea id="ownerLearningObjective" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" placeholder="Siswa dapat memahami dan menerapkan..."></textarea>
+                        </div>
+
+                        <div>
+                            <label for="ownerDifficulty" class="block text-sm font-medium text-gray-700 mb-2">Tingkat Kesulitan</label>
+                            <select id="ownerDifficulty" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                                <option value="">Pilih Tingkat Kesulitan</option>
+                                <option value="mudah">🟢 Mudah (50 XP)</option>
+                                <option value="sedang">🟡 Sedang (75 XP)</option>
+                                <option value="sulit">🔴 Sulit (100 XP)</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="ownerEmbedCode" class="block text-sm font-medium text-gray-700 mb-2">Kode Embed HTML Kuis</label>
+                            <textarea id="ownerEmbedCode" rows="6" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent font-mono text-sm" placeholder='Contoh: <iframe src="https://wordwall.net/embed/..." width="100%" height="400"></iframe>'></textarea>
+                            <p class="text-sm text-gray-500 mt-1">Mendukung: Scratch, Wordwall, Canva, Google Form, Quizizz (paste kode embed HTML lengkap)</p>
+                        </div>
+                        
+                        <button type="submit" id="ownerSubmitBtn" class="w-full bg-gray-400 text-white py-3 px-6 rounded-lg font-semibold cursor-not-allowed" disabled>
+                            Tambah Kuis/Game
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Tab Content: Teacher Codes -->
+                <div id="ownerTeacherCodesTab" class="owner-tab-content hidden">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800">🔑 Kelola Kode Akses Guru</h3>
+                        <button id="ownerAddTeacherCode" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors text-sm font-semibold btn-animated">
+                            ➕ Tambah Kode Baru
+                        </button>
+                    </div>
+                    
+                    <!-- Form Tambah Kode Guru -->
+                    <div id="ownerAddCodeForm" class="hidden mb-6 p-4 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                        <h4 class="text-md font-semibold text-gray-800 mb-4">➕ Tambah Kode Akses Baru</h4>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="ownerNewTeacherCode" class="block text-sm font-medium text-gray-700 mb-2">Kode Akses Baru</label>
+                                <input type="text" id="ownerNewTeacherCode" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent font-mono" placeholder="Contoh: GURU2024NEW">
+                            </div>
+                            <div>
+                                <label for="ownerCodeDescription" class="block text-sm font-medium text-gray-700 mb-2">Deskripsi/Nama Guru</label>
+                                <input type="text" id="ownerCodeDescription" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Contoh: Pak Budi - Matematika">
+                            </div>
+                        </div>
+                        <div class="flex space-x-3 mt-4">
+                            <button id="ownerSaveTeacherCode" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors font-semibold btn-animated" disabled>
+                                💾 Simpan Kode
+                            </button>
+                            <button id="ownerCancelAddCode" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors font-semibold btn-animated">
+                                ❌ Batal
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Daftar Kode Guru -->
+                    <div id="ownerTeacherCodesList" class="space-y-3">
+                        <!-- Kode guru akan ditampilkan di sini -->
+                    </div>
+                </div>
+
+                <!-- Tab Content: Leaderboard -->
+                <div id="ownerLeaderboardTab" class="owner-tab-content hidden">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800">🏆 Kelola Leaderboard Siswa</h3>
+                        <div class="flex space-x-2">
+                            <button id="ownerRefreshLeaderboard" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm font-semibold btn-animated">
+                                🔄 Refresh
+                            </button>
+                            <button id="ownerResetLeaderboard" class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors text-sm font-semibold btn-animated">
+                                🗑️ Reset Semua
+                            </button>
+                        </div>
+                    </div>
+                    <div id="ownerLeaderboard" class="space-y-3">
+                        <!-- Leaderboard untuk owner akan diisi secara dinamis -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
 
         <!-- Panel Siswa - Leaderboard -->
         <div id="studentPanel" class="hidden mb-8">
@@ -414,71 +613,70 @@
             </div>
         </div>
 
-        <!-- Panel Guru - Leaderboard Management -->
-        <div id="teacherLeaderboardPanel" class="hidden mb-8">
-            <div class="quiz-card rounded-xl shadow-lg p-6">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-2xl font-bold text-gray-800">🏆 Kelola Leaderboard Siswa</h2>
-                    <div class="flex space-x-2">
-                        <button id="refreshLeaderboard" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm font-semibold btn-animated">
-                            🔄 Refresh
-                        </button>
-                        <button id="resetLeaderboard" class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors text-sm font-semibold btn-animated">
-                            🗑️ Reset Semua
-                        </button>
-                    </div>
+
+
+        <!-- Filter untuk mode siswa -->
+        <div id="studentFilters" class="hidden mb-6 quiz-card rounded-xl shadow-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">🔍 Filter Kuis</h3>
+            <div class="grid md:grid-cols-3 gap-4">
+                <div>
+                    <label for="filterGrade" class="block text-sm font-medium text-gray-700 mb-2">Fase/Kelas</label>
+                    <select id="filterGrade" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm">
+                        <option value="">Semua Fase/Kelas</option>
+                        <option value="Fase A (Kelas 1-2)">Fase A (Kelas 1-2)</option>
+                        <option value="Fase B (Kelas 3-4)">Fase B (Kelas 3-4)</option>
+                        <option value="Fase C (Kelas 5-6)">Fase C (Kelas 5-6)</option>
+                        <option value="Fase D (Kelas 7-9)">Fase D (Kelas 7-9)</option>
+                        <option value="Fase E (Kelas 10)">Fase E (Kelas 10)</option>
+                        <option value="Fase F (Kelas 11-12)">Fase F (Kelas 11-12)</option>
+                    </select>
                 </div>
-                <div id="teacherLeaderboard" class="space-y-3">
-                    <!-- Leaderboard untuk guru akan diisi secara dinamis -->
+                <div>
+                    <label for="filterDifficulty" class="block text-sm font-medium text-gray-700 mb-2">Tingkat Kesulitan</label>
+                    <select id="filterDifficulty" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm">
+                        <option value="">Semua Tingkat</option>
+                        <option value="mudah">🟢 Mudah</option>
+                        <option value="sedang">🟡 Sedang</option>
+                        <option value="sulit">🔴 Sulit</option>
+                    </select>
                 </div>
+                <div>
+                    <label for="searchQuiz" class="block text-sm font-medium text-gray-700 mb-2">Cari Materi</label>
+                    <input type="text" id="searchQuiz" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm" placeholder="Ketik nama materi...">
+                </div>
+            </div>
+            <div class="mt-4 flex justify-end">
+                <button id="resetFilters" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors text-sm font-semibold">
+                    🔄 Reset Filter
+                </button>
             </div>
         </div>
 
         <!-- Daftar Kuis/Game -->
         <div class="quiz-card rounded-xl shadow-lg p-6">
             <h2 class="text-2xl font-bold text-gray-800 mb-6">📚 Kuis/Game Tersedia</h2>
-            <!-- Filter untuk mode siswa -->
-            <div id="studentFilters" class="hidden mb-6 bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-xl border-2 border-purple-200">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">🔍 Filter Kuis</h3>
-                <div class="grid md:grid-cols-3 gap-4">
-                    <div>
-                        <label for="filterGrade" class="block text-sm font-medium text-gray-700 mb-2">Fase/Kelas</label>
-                        <select id="filterGrade" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm">
-                            <option value="">Semua Fase/Kelas</option>
-                            <option value="Fase A (Kelas 1-2)">Fase A (Kelas 1-2)</option>
-                            <option value="Fase B (Kelas 3-4)">Fase B (Kelas 3-4)</option>
-                            <option value="Fase C (Kelas 5-6)">Fase C (Kelas 5-6)</option>
-                            <option value="Fase D (Kelas 7-9)">Fase D (Kelas 7-9)</option>
-                            <option value="Fase E (Kelas 10)">Fase E (Kelas 10)</option>
-                            <option value="Fase F (Kelas 11-12)">Fase F (Kelas 11-12)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="filterDifficulty" class="block text-sm font-medium text-gray-700 mb-2">Tingkat Kesulitan</label>
-                        <select id="filterDifficulty" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm">
-                            <option value="">Semua Tingkat</option>
-                            <option value="mudah">🟢 Mudah</option>
-                            <option value="sedang">🟡 Sedang</option>
-                            <option value="sulit">🔴 Sulit</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="searchQuiz" class="block text-sm font-medium text-gray-700 mb-2">Cari Materi</label>
-                        <input type="text" id="searchQuiz" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm" placeholder="Ketik nama materi...">
-                    </div>
-                </div>
-                <div class="mt-4 flex justify-end">
-                    <button id="resetFilters" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors text-sm font-semibold">
-                        🔄 Reset Filter
-                    </button>
-                </div>
-            </div>
-
             <div id="quizList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Kuis akan ditampilkan di sini -->
             </div>
         </div>
     </main>
+
+    <!-- Footer Copyright -->
+    <footer class="bg-gray-800 text-white py-6 mt-12 relative">
+        <div class="container mx-auto px-4 text-center">
+            <div class="flex items-center justify-center space-x-2 mb-2">
+                <span class="text-2xl">🤖</span>
+                <p class="text-sm">Sistem ini dirancang dari AI oleh <span class="font-semibold text-blue-400">Ian Dwi Putera, S.Pd</span></p>
+                <span class="text-2xl">🎓</span>
+            </div>
+            <p class="text-xs text-gray-400">© 2024 EduQuiz Interactive - Platform Pembelajaran Gamifikasi</p>
+        </div>
+        
+        <!-- Owner Access Button -->
+        <button id="ownerAccessBtn" class="absolute bottom-4 left-4 bg-gradient-to-r from-red-600 to-red-800 text-white px-3 py-2 rounded-lg text-xs font-semibold hover:from-red-700 hover:to-red-900 transition-all shadow-lg border border-red-500">
+            👑 Owner
+        </button>
+    </footer>
 
     <!-- Modal konfirmasi hapus -->
     <div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -492,6 +690,25 @@
                         Batal
                     </button>
                     <button id="confirmDelete" class="flex-1 bg-red-500 text-white py-3 px-4 rounded-lg hover:bg-red-600 transition-colors font-semibold btn-animated">
+                        Ya, Hapus
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal konfirmasi hapus kode guru -->
+    <div id="deleteTeacherCodeModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="quiz-card p-6 max-w-md w-full mx-4">
+            <div class="text-center">
+                <div class="text-6xl mb-4 edu-icon">🔑</div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Hapus Kode Guru?</h3>
+                <p class="text-gray-600 mb-6">Apakah kamu yakin ingin menghapus kode akses "<span id="deleteCodeText" class="font-semibold font-mono"></span>"? Guru yang menggunakan kode ini tidak akan bisa login lagi.</p>
+                <div class="flex space-x-3">
+                    <button id="cancelDeleteCode" class="flex-1 bg-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-400 transition-colors font-semibold btn-animated">
+                        Batal
+                    </button>
+                    <button id="confirmDeleteCode" class="flex-1 bg-red-500 text-white py-3 px-4 rounded-lg hover:bg-red-600 transition-colors font-semibold btn-animated">
                         Ya, Hapus
                     </button>
                 </div>
@@ -549,211 +766,628 @@
     </div>
 
     <script>
-        let currentRole = 'teacher';
-        let currentStudent = null;
-        let students = JSON.parse(localStorage.getItem('students')) || [];
-        let quizzes = JSON.parse(localStorage.getItem('quizzes')) || [];
-        let isTeacherAuthenticated = false;
-        
-        // Kode akses guru (untuk development - dalam produksi sebaiknya di server)
-        const TEACHER_ACCESS_CODE = 'GURU2024EDU';
-
-        // Mode toggle handlers
-        document.getElementById('teacherModeBtn').addEventListener('click', function() {
-            if (!isTeacherAuthenticated) {
-                showTeacherAccessPanel();
-            } else {
-                switchToTeacherMode();
-            }
-        });
-
-        document.getElementById('studentModeBtn').addEventListener('click', function() {
-            switchToStudentMode();
-        });
-
-        function showTeacherAccessPanel() {
-            document.getElementById('teacherAccessPanel').classList.remove('hidden');
-            document.getElementById('teacherPanel').classList.add('hidden');
-            document.getElementById('teacherLeaderboardPanel').classList.add('hidden');
-            document.getElementById('studentPanel').classList.add('hidden');
-            document.getElementById('studentNamePanel').classList.add('hidden');
-            document.getElementById('studentInfo').classList.add('hidden');
-            document.getElementById('studentFilters').classList.add('hidden');
-            
-            // Update button states
-            document.getElementById('teacherModeBtn').classList.remove('active');
-            document.getElementById('studentModeBtn').classList.remove('active');
-        }
-
-        function switchToTeacherMode() {
-            currentRole = 'teacher';
-            currentStudent = null;
-            
-            document.getElementById('teacherAccessPanel').classList.add('hidden');
-            document.getElementById('teacherPanel').classList.remove('hidden');
-            document.getElementById('teacherLeaderboardPanel').classList.remove('hidden');
-            document.getElementById('studentPanel').classList.add('hidden');
-            document.getElementById('studentNamePanel').classList.add('hidden');
-            document.getElementById('studentInfo').classList.add('hidden');
-            document.getElementById('studentFilters').classList.add('hidden');
-            
-            // Update button states
-            document.getElementById('teacherModeBtn').classList.add('active');
-            document.getElementById('studentModeBtn').classList.remove('active');
-            
-            updateDeleteButtons();
-            updateTeacherLeaderboard();
-        }
-
-        function switchToStudentMode() {
-            currentRole = 'student';
-            
-            document.getElementById('teacherAccessPanel').classList.add('hidden');
-            document.getElementById('teacherPanel').classList.add('hidden');
-            document.getElementById('teacherLeaderboardPanel').classList.add('hidden');
-            document.getElementById('studentFilters').classList.remove('hidden');
-            
-            if (currentStudent) {
-                document.getElementById('studentPanel').classList.remove('hidden');
-                document.getElementById('studentNamePanel').classList.add('hidden');
-                document.getElementById('studentInfo').classList.remove('hidden');
-            } else {
-                document.getElementById('studentPanel').classList.add('hidden');
-                document.getElementById('studentNamePanel').classList.remove('hidden');
-                document.getElementById('studentInfo').classList.add('hidden');
+        // Global State Management
+        class EduQuizApp {
+            constructor() {
+                this.currentRole = 'student';
+                this.currentStudent = null;
+                this.students = JSON.parse(localStorage.getItem('students')) || [];
+                this.quizzes = JSON.parse(localStorage.getItem('quizzes')) || [];
+                this.teacherCodes = JSON.parse(localStorage.getItem('teacherCodes')) || [
+                    { id: 1, code: 'GURU2024EDU', description: 'Kode Default Admin', createdAt: new Date().toISOString() }
+                ];
+                this.isTeacherAuthenticated = false;
+                this.isOwnerAuthenticated = false;
+                this.ownerCode = 'OWNER2024ADMIN';
+                this.currentOwnerTab = 'quiz';
+                this.currentTeacherTab = 'quiz';
+                
+                this.init();
             }
             
-            // Update button states
-            document.getElementById('teacherModeBtn').classList.remove('active');
-            document.getElementById('studentModeBtn').classList.add('active');
-            
-            updateDeleteButtons();
-            updateLeaderboard();
-            applyFilters();
-        }
-
-        // Teacher access validation
-        document.getElementById('teacherAccessCode').addEventListener('input', function() {
-            const code = this.value.trim();
-            const verifyBtn = document.getElementById('verifyTeacherAccess');
-            
-            if (code.length >= 3) {
-                verifyBtn.disabled = false;
-                verifyBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
-                verifyBtn.classList.add('bg-gradient-to-r', 'from-blue-500', 'to-indigo-500');
-            } else {
-                verifyBtn.disabled = true;
-                verifyBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
-                verifyBtn.classList.remove('bg-gradient-to-r', 'from-blue-500', 'to-indigo-500');
+            init() {
+                this.bindEvents();
+                this.renderQuizzes();
+                this.switchToStudentMode();
+                this.saveTeacherCodes(); // Ensure default code is saved
             }
-        });
-
-        document.getElementById('verifyTeacherAccess').addEventListener('click', function() {
-            const code = document.getElementById('teacherAccessCode').value.trim();
             
-            if (code === TEACHER_ACCESS_CODE) {
-                isTeacherAuthenticated = true;
-                switchToTeacherMode();
-                showNotification('✅ Akses guru berhasil! Selamat datang!', 'success');
-                document.getElementById('teacherAccessCode').value = '';
-            } else {
-                showNotification('❌ Kode akses salah! Silakan coba lagi.', 'error');
-                document.getElementById('teacherAccessCode').value = '';
-                document.getElementById('teacherAccessCode').focus();
+            bindEvents() {
+                // Mode toggle events
+                document.getElementById('teacherModeBtn').addEventListener('click', () => this.handleTeacherModeClick());
+                document.getElementById('studentModeBtn').addEventListener('click', () => this.switchToStudentMode());
+                
+                // Teacher access events
+                document.getElementById('teacherAccessCode').addEventListener('input', (e) => this.validateTeacherAccess(e));
+                document.getElementById('verifyTeacherAccess').addEventListener('click', () => this.verifyTeacherAccess());
+                document.getElementById('logoutTeacher').addEventListener('click', () => this.logoutTeacher());
+                
+                // Owner access events
+                document.getElementById('ownerAccessBtn').addEventListener('click', () => this.showOwnerAccessPanel());
+                document.getElementById('ownerAccessCode').addEventListener('input', (e) => this.validateOwnerAccess(e));
+                document.getElementById('verifyOwnerAccess').addEventListener('click', () => this.verifyOwnerAccess());
+                document.getElementById('logoutOwner').addEventListener('click', () => this.logoutOwner());
+                
+                // Student events
+                document.getElementById('studentNameInput').addEventListener('input', (e) => this.validateStudentName(e));
+                document.getElementById('startPlaying').addEventListener('click', () => this.startPlaying());
+                
+                // Teacher tab events
+                document.getElementById('teacherTabQuizManagement').addEventListener('click', () => this.switchTeacherTab('quiz'));
+                document.getElementById('teacherTabLeaderboard').addEventListener('click', () => this.switchTeacherTab('leaderboard'));
+                
+                // Owner tab events
+                document.getElementById('tabQuizManagement').addEventListener('click', () => this.switchOwnerTab('quiz'));
+                document.getElementById('tabTeacherCodes').addEventListener('click', () => this.switchOwnerTab('codes'));
+                document.getElementById('tabLeaderboard').addEventListener('click', () => this.switchOwnerTab('leaderboard'));
+                
+                // Teacher quiz form events
+                ['teacherQuizTitle', 'teacherQuizGrade', 'teacherLearningObjective', 'teacherDifficulty', 'teacherEmbedCode'].forEach(id => {
+                    const element = document.getElementById(id);
+                    element.addEventListener('input', () => this.validateTeacherQuizForm());
+                    element.addEventListener('change', () => this.validateTeacherQuizForm());
+                });
+                document.getElementById('teacherQuizForm').addEventListener('submit', (e) => this.submitTeacherQuiz(e));
+                
+                // Owner quiz form events
+                ['ownerQuizTitle', 'ownerQuizGrade', 'ownerLearningObjective', 'ownerDifficulty', 'ownerEmbedCode'].forEach(id => {
+                    const element = document.getElementById(id);
+                    element.addEventListener('input', () => this.validateOwnerQuizForm());
+                    element.addEventListener('change', () => this.validateOwnerQuizForm());
+                });
+                document.getElementById('ownerQuizForm').addEventListener('submit', (e) => this.submitOwnerQuiz(e));
+                
+                // Owner teacher code management events
+                document.getElementById('ownerAddTeacherCode').addEventListener('click', () => this.showOwnerAddCodeForm());
+                document.getElementById('ownerCancelAddCode').addEventListener('click', () => this.hideOwnerAddCodeForm());
+                document.getElementById('ownerNewTeacherCode').addEventListener('input', () => this.validateOwnerNewCode());
+                document.getElementById('ownerCodeDescription').addEventListener('input', () => this.validateOwnerNewCode());
+                document.getElementById('ownerSaveTeacherCode').addEventListener('click', () => this.saveOwnerNewTeacherCode());
+                
+                // Filter events
+                document.getElementById('filterGrade').addEventListener('change', () => this.applyFilters());
+                document.getElementById('filterDifficulty').addEventListener('change', () => this.applyFilters());
+                document.getElementById('searchQuiz').addEventListener('input', () => this.applyFilters());
+                document.getElementById('resetFilters').addEventListener('click', () => this.resetFilters());
+                
+                // Teacher leaderboard management events
+                document.getElementById('teacherRefreshLeaderboard').addEventListener('click', () => this.teacherRefreshLeaderboard());
+                
+                // Owner leaderboard management events
+                document.getElementById('ownerRefreshLeaderboard').addEventListener('click', () => this.ownerRefreshLeaderboard());
+                document.getElementById('ownerResetLeaderboard').addEventListener('click', () => this.showResetLeaderboardModal());
+                document.getElementById('cancelResetLeaderboard').addEventListener('click', () => this.hideResetLeaderboardModal());
+                document.getElementById('confirmResetLeaderboard').addEventListener('click', () => this.resetLeaderboard());
+                
+                // Modal events
+                document.getElementById('closeModal').addEventListener('click', () => this.closeQuizModal());
+                document.getElementById('completeQuiz').addEventListener('click', () => this.completeQuiz());
+                document.getElementById('cancelDelete').addEventListener('click', () => this.hideDeleteModal());
+                document.getElementById('confirmDelete').addEventListener('click', () => this.confirmDeleteQuiz());
+                document.getElementById('cancelDeleteCode').addEventListener('click', () => this.hideDeleteCodeModal());
+                document.getElementById('confirmDeleteCode').addEventListener('click', () => this.confirmDeleteTeacherCode());
+                
+                // Event delegation for dynamic elements
+                document.addEventListener('click', (e) => this.handleDynamicClicks(e));
             }
-        });
-
-        // Logout teacher
-        document.getElementById('logoutTeacher').addEventListener('click', function() {
-            isTeacherAuthenticated = false;
-            switchToStudentMode();
-            showNotification('👋 Berhasil keluar dari mode guru', 'info');
-        });
             
-            if (currentRole === 'teacher') {
-                document.getElementById('currentRole').innerHTML = '👨‍🏫 Guru';
-                document.getElementById('teacherPanel').classList.remove('hidden');
-                document.getElementById('studentPanel').classList.add('hidden');
-                document.getElementById('studentNamePanel').classList.add('hidden');
-                document.getElementById('studentInfo').classList.add('hidden');
-                document.getElementById('studentFilters').classList.add('hidden');
-                currentStudent = null;
-            } else {
-                document.getElementById('currentRole').innerHTML = '👨‍🎓 Siswa';
-                document.getElementById('teacherPanel').classList.add('hidden');
-                document.getElementById('studentFilters').classList.remove('hidden');
-                if (currentStudent) {
-                    document.getElementById('studentPanel').classList.remove('hidden');
-                    document.getElementById('studentNamePanel').classList.add('hidden');
-                    document.getElementById('studentInfo').classList.remove('hidden');
+            handleTeacherModeClick() {
+                if (!this.isTeacherAuthenticated) {
+                    this.showTeacherAccessPanel();
                 } else {
-                    document.getElementById('studentPanel').classList.add('hidden');
-                    document.getElementById('studentNamePanel').classList.remove('hidden');
-                    document.getElementById('studentInfo').classList.add('hidden');
+                    this.switchToTeacherMode();
                 }
-                updateLeaderboard();
             }
-            updateDeleteButtons();
-            applyFilters();
-        });
-
-        // Validasi input nama siswa
-        document.getElementById('studentNameInput').addEventListener('input', function() {
-            const name = this.value.trim();
-            const startBtn = document.getElementById('startPlaying');
             
-            if (name.length >= 2) {
-                startBtn.disabled = false;
-                startBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
-                startBtn.classList.add('bg-purple-500', 'hover:bg-purple-600');
-            } else {
-                startBtn.disabled = true;
-                startBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
-                startBtn.classList.remove('bg-purple-500', 'hover:bg-purple-600');
+            showTeacherAccessPanel() {
+                this.hideAllPanels();
+                document.getElementById('teacherAccessPanel').classList.remove('hidden');
+                this.updateModeButtons('none');
             }
-        });
-
-        // Mulai bermain sebagai siswa
-        document.getElementById('startPlaying').addEventListener('click', function() {
-            const name = document.getElementById('studentNameInput').value.trim();
             
-            // Cari atau buat siswa baru
-            let student = students.find(s => s.name.toLowerCase() === name.toLowerCase());
-            if (!student) {
-                student = {
+            switchToTeacherMode() {
+                this.currentRole = 'teacher';
+                this.currentStudent = null;
+                
+                this.hideAllPanels();
+                document.getElementById('teacherPanel').classList.remove('hidden');
+                
+                this.updateModeButtons('teacher');
+                this.updateDeleteButtons();
+                this.switchTeacherTab(this.currentTeacherTab);
+            }
+            
+            // Teacher Tab Management
+            switchTeacherTab(tabName) {
+                this.currentTeacherTab = tabName;
+                
+                // Update tab buttons
+                document.querySelectorAll('.teacher-tab').forEach(tab => {
+                    tab.classList.remove('active', 'text-blue-600', 'border-blue-600');
+                    tab.classList.add('text-gray-600');
+                });
+                
+                // Hide all tab contents
+                document.querySelectorAll('.teacher-tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                
+                // Show selected tab
+                if (tabName === 'quiz') {
+                    document.getElementById('teacherTabQuizManagement').classList.add('active', 'text-blue-600', 'border-blue-600');
+                    document.getElementById('teacherTabQuizManagement').classList.remove('text-gray-600');
+                    document.getElementById('teacherQuizTab').classList.remove('hidden');
+                } else if (tabName === 'leaderboard') {
+                    document.getElementById('teacherTabLeaderboard').classList.add('active', 'text-blue-600', 'border-blue-600');
+                    document.getElementById('teacherTabLeaderboard').classList.remove('text-gray-600');
+                    document.getElementById('teacherLeaderboardTab').classList.remove('hidden');
+                    this.updateTeacherLeaderboard();
+                }
+            }
+            
+            // Owner Tab Management
+            switchOwnerTab(tabName) {
+                this.currentOwnerTab = tabName;
+                
+                // Update tab buttons
+                document.querySelectorAll('.owner-tab').forEach(tab => {
+                    tab.classList.remove('active', 'text-red-600', 'border-red-600');
+                    tab.classList.add('text-gray-600');
+                });
+                
+                // Hide all tab contents
+                document.querySelectorAll('.owner-tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                
+                // Show selected tab
+                if (tabName === 'quiz') {
+                    document.getElementById('tabQuizManagement').classList.add('active', 'text-red-600', 'border-red-600');
+                    document.getElementById('tabQuizManagement').classList.remove('text-gray-600');
+                    document.getElementById('ownerQuizTab').classList.remove('hidden');
+                } else if (tabName === 'codes') {
+                    document.getElementById('tabTeacherCodes').classList.add('active', 'text-red-600', 'border-red-600');
+                    document.getElementById('tabTeacherCodes').classList.remove('text-gray-600');
+                    document.getElementById('ownerTeacherCodesTab').classList.remove('hidden');
+                    this.renderOwnerTeacherCodes();
+                } else if (tabName === 'leaderboard') {
+                    document.getElementById('tabLeaderboard').classList.add('active', 'text-red-600', 'border-red-600');
+                    document.getElementById('tabLeaderboard').classList.remove('text-gray-600');
+                    document.getElementById('ownerLeaderboardTab').classList.remove('hidden');
+                    this.updateOwnerLeaderboard();
+                }
+            }
+            
+            // Teacher Quiz Management
+            validateTeacherQuizForm() {
+                const title = document.getElementById('teacherQuizTitle').value.trim();
+                const grade = document.getElementById('teacherQuizGrade').value;
+                const objective = document.getElementById('teacherLearningObjective').value.trim();
+                const difficulty = document.getElementById('teacherDifficulty').value;
+                const embedCode = document.getElementById('teacherEmbedCode').value.trim();
+                
+                const submitBtn = document.getElementById('teacherSubmitBtn');
+                
+                if (title && grade && objective && difficulty && embedCode) {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                    submitBtn.classList.add('bg-gradient-to-r', 'from-blue-500', 'to-blue-700', 'hover:from-blue-600', 'hover:to-blue-800');
+                } else {
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                    submitBtn.classList.remove('bg-gradient-to-r', 'from-blue-500', 'to-blue-700', 'hover:from-blue-600', 'hover:to-blue-800');
+                }
+            }
+            
+            submitTeacherQuiz(e) {
+                e.preventDefault();
+                
+                const title = document.getElementById('teacherQuizTitle').value.trim();
+                const grade = document.getElementById('teacherQuizGrade').value;
+                const objective = document.getElementById('teacherLearningObjective').value.trim();
+                const difficulty = document.getElementById('teacherDifficulty').value;
+                const embedCode = document.getElementById('teacherEmbedCode').value.trim();
+                
+                const { platform, icon, color } = this.detectPlatform(embedCode);
+                const xp = this.getXPByDifficulty(difficulty);
+                
+                const quiz = {
                     id: Date.now(),
-                    name: name,
-                    xp: 0,
-                    joinDate: new Date().toISOString()
+                    title,
+                    grade,
+                    objective,
+                    difficulty,
+                    embedCode,
+                    platform,
+                    icon,
+                    color,
+                    xp,
+                    createdBy: 'teacher'
                 };
-                students.push(student);
-                localStorage.setItem('students', JSON.stringify(students));
+                
+                this.quizzes.push(quiz);
+                this.saveQuizzes();
+                this.renderQuizzes();
+                
+                document.getElementById('teacherQuizForm').reset();
+                this.validateTeacherQuizForm();
+                
+                this.showNotification('🎉 Kuis berhasil ditambahkan oleh Guru!', 'success');
             }
             
-            currentStudent = student;
-            document.getElementById('studentName').textContent = student.name;
-            document.getElementById('xpCount').textContent = student.xp;
-            
-            document.getElementById('studentNamePanel').classList.add('hidden');
-            document.getElementById('studentPanel').classList.remove('hidden');
-            document.getElementById('studentInfo').classList.remove('hidden');
-            
-            updateLeaderboard();
-        });
-
-        // Teacher leaderboard management
-        function updateTeacherLeaderboard() {
-            const teacherLeaderboard = document.getElementById('teacherLeaderboard');
-            const sortedStudents = [...students].sort((a, b) => b.xp - a.xp);
-            
-            teacherLeaderboard.innerHTML = '';
-            
-            if (sortedStudents.length === 0) {
-                teacherLeaderboard.innerHTML = '<p class="text-gray-500 text-center py-8">Belum ada siswa yang terdaftar. 📊</p>';
-                return;
+            // Owner Quiz Management
+            validateOwnerQuizForm() {
+                const title = document.getElementById('ownerQuizTitle').value.trim();
+                const grade = document.getElementById('ownerQuizGrade').value;
+                const objective = document.getElementById('ownerLearningObjective').value.trim();
+                const difficulty = document.getElementById('ownerDifficulty').value;
+                const embedCode = document.getElementById('ownerEmbedCode').value.trim();
+                
+                const submitBtn = document.getElementById('ownerSubmitBtn');
+                
+                if (title && grade && objective && difficulty && embedCode) {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                    submitBtn.classList.add('bg-gradient-to-r', 'from-red-500', 'to-red-700', 'hover:from-red-600', 'hover:to-red-800');
+                } else {
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                    submitBtn.classList.remove('bg-gradient-to-r', 'from-red-500', 'to-red-700', 'hover:from-red-600', 'hover:to-red-800');
+                }
             }
             
-            sortedStudents.forEach((student, index) => {
+            submitOwnerQuiz(e) {
+                e.preventDefault();
+                
+                const title = document.getElementById('ownerQuizTitle').value.trim();
+                const grade = document.getElementById('ownerQuizGrade').value;
+                const objective = document.getElementById('ownerLearningObjective').value.trim();
+                const difficulty = document.getElementById('ownerDifficulty').value;
+                const embedCode = document.getElementById('ownerEmbedCode').value.trim();
+                
+                const { platform, icon, color } = this.detectPlatform(embedCode);
+                const xp = this.getXPByDifficulty(difficulty);
+                
+                const quiz = {
+                    id: Date.now(),
+                    title,
+                    grade,
+                    objective,
+                    difficulty,
+                    embedCode,
+                    platform,
+                    icon,
+                    color,
+                    xp
+                };
+                
+                this.quizzes.push(quiz);
+                this.saveQuizzes();
+                this.renderQuizzes();
+                
+                document.getElementById('ownerQuizForm').reset();
+                this.validateOwnerQuizForm();
+                
+                this.showNotification('🎉 Kuis berhasil ditambahkan oleh Owner!', 'success');
+            }
+            
+            switchToStudentMode() {
+                this.currentRole = 'student';
+                
+                this.hideAllPanels();
+                document.getElementById('studentFilters').classList.remove('hidden');
+                
+                if (this.currentStudent) {
+                    document.getElementById('studentPanel').classList.remove('hidden');
+                    document.getElementById('studentInfo').classList.remove('hidden');
+                    this.updateStudentInfo();
+                } else {
+                    document.getElementById('studentNamePanel').classList.remove('hidden');
+                }
+                
+                this.updateModeButtons('student');
+                this.updateDeleteButtons();
+                this.updateLeaderboard();
+                this.applyFilters();
+            }
+            
+            hideAllPanels() {
+                const panels = [
+                    'teacherAccessPanel', 'teacherPanel', 'teacherCodePanel', 'teacherLeaderboardPanel',
+                    'studentPanel', 'studentNamePanel', 'studentInfo', 'studentFilters', 'ownerAccessPanel', 'ownerPanel'
+                ];
+                panels.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.classList.add('hidden');
+                    }
+                });
+            }
+            
+            updateModeButtons(activeMode) {
+                const teacherBtn = document.getElementById('teacherModeBtn');
+                const studentBtn = document.getElementById('studentModeBtn');
+                
+                teacherBtn.classList.remove('active');
+                studentBtn.classList.remove('active');
+                
+                if (activeMode === 'teacher') {
+                    teacherBtn.classList.add('active');
+                } else if (activeMode === 'student') {
+                    studentBtn.classList.add('active');
+                }
+            }
+            
+            validateTeacherAccess(e) {
+                const code = e.target.value.trim();
+                const verifyBtn = document.getElementById('verifyTeacherAccess');
+                
+                if (code.length >= 3) {
+                    verifyBtn.disabled = false;
+                    verifyBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                    verifyBtn.classList.add('bg-gradient-to-r', 'from-blue-500', 'to-indigo-500');
+                } else {
+                    verifyBtn.disabled = true;
+                    verifyBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                    verifyBtn.classList.remove('bg-gradient-to-r', 'from-blue-500', 'to-indigo-500');
+                }
+            }
+            
+            verifyTeacherAccess() {
+                const code = document.getElementById('teacherAccessCode').value.trim();
+                const isValidCode = this.teacherCodes.some(tc => tc.code === code);
+                
+                if (isValidCode) {
+                    this.isTeacherAuthenticated = true;
+                    this.switchToTeacherMode();
+                    this.showNotification('✅ Akses guru berhasil! Selamat datang!', 'success');
+                    document.getElementById('teacherAccessCode').value = '';
+                } else {
+                    this.showNotification('❌ Kode akses salah! Silakan coba lagi.', 'error');
+                    document.getElementById('teacherAccessCode').value = '';
+                    document.getElementById('teacherAccessCode').focus();
+                }
+            }
+            
+            logoutTeacher() {
+                this.isTeacherAuthenticated = false;
+                this.switchToStudentMode();
+                this.showNotification('👋 Berhasil keluar dari mode guru', 'info');
+            }
+            
+            // Owner Access Methods
+            showOwnerAccessPanel() {
+                if (!this.isOwnerAuthenticated) {
+                    this.hideAllPanels();
+                    document.getElementById('ownerAccessPanel').classList.remove('hidden');
+                    this.updateModeButtons('none');
+                } else {
+                    this.switchToOwnerMode();
+                }
+            }
+            
+            validateOwnerAccess(e) {
+                const code = e.target.value.trim();
+                const verifyBtn = document.getElementById('verifyOwnerAccess');
+                
+                if (code.length >= 3) {
+                    verifyBtn.disabled = false;
+                    verifyBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                    verifyBtn.classList.add('bg-gradient-to-r', 'from-red-500', 'to-red-700');
+                } else {
+                    verifyBtn.disabled = true;
+                    verifyBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                    verifyBtn.classList.remove('bg-gradient-to-r', 'from-red-500', 'to-red-700');
+                }
+            }
+            
+            verifyOwnerAccess() {
+                const code = document.getElementById('ownerAccessCode').value.trim();
+                
+                if (code === this.ownerCode) {
+                    this.isOwnerAuthenticated = true;
+                    this.switchToOwnerMode();
+                    this.showNotification('👑 Akses owner berhasil! Selamat datang, Admin!', 'success');
+                    document.getElementById('ownerAccessCode').value = '';
+                } else {
+                    this.showNotification('❌ Kode owner salah! Akses ditolak.', 'error');
+                    document.getElementById('ownerAccessCode').value = '';
+                    document.getElementById('ownerAccessCode').focus();
+                }
+            }
+            
+            switchToOwnerMode() {
+                this.currentRole = 'owner';
+                this.currentStudent = null;
+                
+                this.hideAllPanels();
+                document.getElementById('ownerPanel').classList.remove('hidden');
+                
+                this.updateModeButtons('none');
+                this.updateDeleteButtons();
+                this.switchOwnerTab(this.currentOwnerTab);
+            }
+            
+            logoutOwner() {
+                this.isOwnerAuthenticated = false;
+                this.switchToStudentMode();
+                this.showNotification('👋 Berhasil keluar dari mode owner', 'info');
+            }
+            
+            // Owner Teacher Code Management Methods
+            showOwnerAddCodeForm() {
+                document.getElementById('ownerAddCodeForm').classList.remove('hidden');
+                document.getElementById('ownerNewTeacherCode').focus();
+            }
+            
+            hideOwnerAddCodeForm() {
+                document.getElementById('ownerAddCodeForm').classList.add('hidden');
+                document.getElementById('ownerNewTeacherCode').value = '';
+                document.getElementById('ownerCodeDescription').value = '';
+                this.validateOwnerNewCode();
+            }
+            
+            validateOwnerNewCode() {
+                const code = document.getElementById('ownerNewTeacherCode').value.trim();
+                const description = document.getElementById('ownerCodeDescription').value.trim();
+                const saveBtn = document.getElementById('ownerSaveTeacherCode');
+                
+                const isCodeExists = this.teacherCodes.some(tc => tc.code.toLowerCase() === code.toLowerCase());
+                
+                if (code.length >= 6 && description.length >= 3 && !isCodeExists) {
+                    saveBtn.disabled = false;
+                    saveBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                    saveBtn.classList.add('bg-green-500', 'hover:bg-green-600');
+                } else {
+                    saveBtn.disabled = true;
+                    saveBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                    saveBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
+                }
+                
+                if (isCodeExists && code.length >= 6) {
+                    this.showNotification('⚠️ Kode sudah ada! Gunakan kode yang berbeda.', 'warning');
+                }
+            }
+            
+            saveOwnerNewTeacherCode() {
+                const code = document.getElementById('ownerNewTeacherCode').value.trim();
+                const description = document.getElementById('ownerCodeDescription').value.trim();
+                
+                const newCode = {
+                    id: Date.now(),
+                    code: code.toUpperCase(),
+                    description: description,
+                    createdAt: new Date().toISOString()
+                };
+                
+                this.teacherCodes.push(newCode);
+                this.saveTeacherCodes();
+                this.renderOwnerTeacherCodes();
+                this.hideOwnerAddCodeForm();
+                
+                this.showNotification(`🎉 Kode guru "${newCode.code}" berhasil ditambahkan!`, 'success');
+            }
+            
+            renderOwnerTeacherCodes() {
+                const codesList = document.getElementById('ownerTeacherCodesList');
+                codesList.innerHTML = '';
+                
+                if (this.teacherCodes.length === 0) {
+                    codesList.innerHTML = '<p class="text-gray-500 text-center py-8">Belum ada kode guru yang terdaftar. 🔑</p>';
+                    return;
+                }
+                
+                this.teacherCodes.forEach(teacherCode => {
+                    const codeItem = this.createOwnerTeacherCodeItem(teacherCode);
+                    codesList.appendChild(codeItem);
+                });
+            }
+            
+            createOwnerTeacherCodeItem(teacherCode) {
+                const item = document.createElement('div');
+                item.className = 'teacher-code-item flex items-center justify-between p-4 rounded-lg border-l-4 border-red-400 bg-red-50';
+                
+                const createdDate = new Date(teacherCode.createdAt).toLocaleDateString('id-ID');
+                const isDefault = teacherCode.id === 1;
+                
+                item.innerHTML = `
+                    <div class="flex items-center space-x-4">
+                        <span class="text-2xl">🔑</span>
+                        <div>
+                            <p class="font-bold text-gray-800 font-mono text-lg">${teacherCode.code}</p>
+                            <p class="text-sm text-gray-600">${teacherCode.description}</p>
+                            <p class="text-xs text-gray-500">Dibuat: ${createdDate}</p>
+                        </div>
+                        ${isDefault ? '<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-semibold">Default</span>' : ''}
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button class="copy-code bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors" data-code="${teacherCode.code}">
+                            📋 Salin
+                        </button>
+                        ${!isDefault ? `
+                            <button class="delete-teacher-code bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors" data-code-id="${teacherCode.id}" data-code="${teacherCode.code}">
+                                🗑️ Hapus
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+                
+                return item;
+            }
+            
+            createTeacherCodeItem(teacherCode) {
+                const item = document.createElement('div');
+                item.className = 'teacher-code-item flex items-center justify-between p-4 rounded-lg border-l-4 border-blue-400 bg-blue-50';
+                
+                const createdDate = new Date(teacherCode.createdAt).toLocaleDateString('id-ID');
+                const isDefault = teacherCode.id === 1;
+                
+                item.innerHTML = `
+                    <div class="flex items-center space-x-4">
+                        <span class="text-2xl">🔑</span>
+                        <div>
+                            <p class="font-bold text-gray-800 font-mono text-lg">${teacherCode.code}</p>
+                            <p class="text-sm text-gray-600">${teacherCode.description}</p>
+                            <p class="text-xs text-gray-500">Dibuat: ${createdDate}</p>
+                        </div>
+                        ${isDefault ? '<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-semibold">Default</span>' : ''}
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button class="copy-code bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 transition-colors" data-code="${teacherCode.code}">
+                            📋 Salin
+                        </button>
+                        ${!isDefault ? `
+                            <button class="delete-teacher-code bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors" data-code-id="${teacherCode.id}" data-code="${teacherCode.code}">
+                                🗑️ Hapus
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+                
+                return item;
+            }
+            
+            showDeleteCodeModal(codeId, code) {
+                document.getElementById('deleteCodeText').textContent = code;
+                document.getElementById('deleteTeacherCodeModal').classList.remove('hidden');
+                document.getElementById('confirmDeleteCode').dataset.codeId = codeId;
+            }
+            
+            hideDeleteCodeModal() {
+                document.getElementById('deleteTeacherCodeModal').classList.add('hidden');
+            }
+            
+            confirmDeleteTeacherCode() {
+                const codeId = parseInt(document.getElementById('confirmDeleteCode').dataset.codeId);
+                const codeToDelete = this.teacherCodes.find(tc => tc.id === codeId);
+                
+                this.teacherCodes = this.teacherCodes.filter(tc => tc.id !== codeId);
+                this.saveTeacherCodes();
+                this.renderOwnerTeacherCodes();
+                this.hideDeleteCodeModal();
+                
+                this.showNotification(`🗑️ Kode guru "${codeToDelete.code}" berhasil dihapus!`, 'success');
+            }
+            
+            // Teacher Leaderboard Management Methods
+            updateTeacherLeaderboard() {
+                const teacherLeaderboard = document.getElementById('teacherLeaderboard');
+                const sortedStudents = [...this.students].sort((a, b) => b.xp - a.xp);
+                
+                teacherLeaderboard.innerHTML = '';
+                
+                if (sortedStudents.length === 0) {
+                    teacherLeaderboard.innerHTML = '<p class="text-gray-500 text-center py-8">Belum ada siswa yang terdaftar. 📊</p>';
+                    return;
+                }
+                
+                sortedStudents.forEach((student, index) => {
+                    const item = this.createTeacherLeaderboardItem(student, index);
+                    teacherLeaderboard.appendChild(item);
+                });
+            }
+            
+            createTeacherLeaderboardItem(student, index) {
                 const medals = ['🥇', '🥈', '🥉'];
                 const medal = medals[index] || '🏅';
                 const colors = ['border-yellow-400 bg-yellow-50', 'border-gray-400 bg-gray-50', 'border-orange-400 bg-orange-50'];
@@ -761,12 +1395,69 @@
                 
                 const item = document.createElement('div');
                 item.className = `leaderboard-item flex items-center justify-between p-4 rounded-lg border-l-4 ${color}`;
+                
+                const joinDate = new Date(student.joinDate).toLocaleDateString('id-ID');
+                const joinTime = new Date(student.joinDate).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                
                 item.innerHTML = `
                     <div class="flex items-center space-x-3">
                         <span class="text-2xl">${medal}</span>
                         <div>
                             <p class="font-semibold text-gray-800">${student.name}</p>
-                            <p class="text-sm text-gray-600">Bergabung: ${new Date(student.joinDate).toLocaleDateString('id-ID')}</p>
+                            <p class="text-sm text-gray-600">Bergabung: ${joinDate} ${joinTime}</p>
+                            <p class="text-xs text-gray-500">ID: ${student.id}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <span class="text-xl font-bold text-gray-700">${student.xp} XP</span>
+                    </div>
+                `;
+                
+                return item;
+            }
+            
+            teacherRefreshLeaderboard() {
+                this.updateTeacherLeaderboard();
+                this.showNotification('🔄 Leaderboard guru berhasil direfresh!', 'info');
+            }
+            
+            // Owner Leaderboard Management Methods
+            updateOwnerLeaderboard() {
+                const ownerLeaderboard = document.getElementById('ownerLeaderboard');
+                const sortedStudents = [...this.students].sort((a, b) => b.xp - a.xp);
+                
+                ownerLeaderboard.innerHTML = '';
+                
+                if (sortedStudents.length === 0) {
+                    ownerLeaderboard.innerHTML = '<p class="text-gray-500 text-center py-8">Belum ada siswa yang terdaftar dalam sistem. 📊</p>';
+                    return;
+                }
+                
+                sortedStudents.forEach((student, index) => {
+                    const item = this.createOwnerLeaderboardItem(student, index);
+                    ownerLeaderboard.appendChild(item);
+                });
+            }
+            
+            createOwnerLeaderboardItem(student, index) {
+                const medals = ['🥇', '🥈', '🥉'];
+                const medal = medals[index] || '🏅';
+                const colors = ['border-yellow-400 bg-yellow-50', 'border-gray-400 bg-gray-50', 'border-orange-400 bg-orange-50'];
+                const color = colors[index] || 'border-red-400 bg-red-50';
+                
+                const item = document.createElement('div');
+                item.className = `leaderboard-item flex items-center justify-between p-4 rounded-lg border-l-4 ${color}`;
+                
+                const joinDate = new Date(student.joinDate).toLocaleDateString('id-ID');
+                const joinTime = new Date(student.joinDate).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                
+                item.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl">${medal}</span>
+                        <div>
+                            <p class="font-semibold text-gray-800">${student.name}</p>
+                            <p class="text-sm text-gray-600">Bergabung: ${joinDate} ${joinTime}</p>
+                            <p class="text-xs text-gray-500">ID: ${student.id}</p>
                         </div>
                     </div>
                     <div class="flex items-center space-x-3">
@@ -776,243 +1467,225 @@
                         </button>
                     </div>
                 `;
-                teacherLeaderboard.appendChild(item);
-            });
-        }
-
-        // Reset leaderboard
-        document.getElementById('resetLeaderboard').addEventListener('click', function() {
-            document.getElementById('resetLeaderboardModal').classList.remove('hidden');
-        });
-
-        document.getElementById('cancelResetLeaderboard').addEventListener('click', function() {
-            document.getElementById('resetLeaderboardModal').classList.add('hidden');
-        });
-
-        document.getElementById('confirmResetLeaderboard').addEventListener('click', function() {
-            students = [];
-            localStorage.setItem('students', JSON.stringify(students));
-            updateTeacherLeaderboard();
-            updateLeaderboard();
-            document.getElementById('resetLeaderboardModal').classList.add('hidden');
-            showNotification('🗑️ Leaderboard berhasil direset!', 'success');
-        });
-
-        // Refresh leaderboard
-        document.getElementById('refreshLeaderboard').addEventListener('click', function() {
-            updateTeacherLeaderboard();
-            showNotification('🔄 Leaderboard berhasil direfresh!', 'info');
-        });
-
-        // Delete individual student
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('delete-student')) {
-                const studentId = parseInt(e.target.dataset.studentId);
-                const studentName = e.target.dataset.studentName;
                 
-                if (confirm(`Apakah kamu yakin ingin menghapus siswa "${studentName}" dari leaderboard?`)) {
-                    students = students.filter(student => student.id !== studentId);
-                    localStorage.setItem('students', JSON.stringify(students));
-                    updateTeacherLeaderboard();
-                    updateLeaderboard();
-                    showNotification(`🗑️ Siswa "${studentName}" berhasil dihapus!`, 'success');
+                return item;
+            }
+            
+            ownerRefreshLeaderboard() {
+                this.updateOwnerLeaderboard();
+                this.showNotification('🔄 Leaderboard owner berhasil direfresh!', 'info');
+            }
+            
+            copyToClipboard(text) {
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        this.showNotification(`📋 Kode "${text}" berhasil disalin!`, 'success');
+                    }).catch(() => {
+                        this.fallbackCopyTextToClipboard(text);
+                    });
+                } else {
+                    this.fallbackCopyTextToClipboard(text);
                 }
             }
-        });
-
-        // Update leaderboard
-        function updateLeaderboard() {
-            const leaderboard = document.getElementById('leaderboard');
-            const sortedStudents = [...students].sort((a, b) => b.xp - a.xp);
             
-            leaderboard.innerHTML = '';
-            
-            if (sortedStudents.length === 0) {
-                leaderboard.innerHTML = '<p class="text-gray-500 text-center py-8">Belum ada siswa yang bermain. Jadilah yang pertama! 🚀</p>';
-                return;
-            }
-            
-            sortedStudents.forEach((student, index) => {
-                const medals = ['🥇', '🥈', '🥉'];
-                const medal = medals[index] || '🏅';
-                const colors = ['border-yellow-400 bg-yellow-50', 'border-gray-400 bg-gray-50', 'border-orange-400 bg-orange-50'];
-                const color = colors[index] || 'border-blue-400 bg-blue-50';
+            fallbackCopyTextToClipboard(text) {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                textArea.style.top = "0";
+                textArea.style.left = "0";
+                textArea.style.position = "fixed";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
                 
-                const item = document.createElement('div');
-                item.className = `leaderboard-item flex items-center justify-between p-4 rounded-lg border-l-4 ${color}`;
-                item.innerHTML = `
-                    <div class="flex items-center space-x-3">
-                        <span class="text-2xl">${medal}</span>
-                        <div>
-                            <p class="font-semibold text-gray-800">${student.name} ${student.id === currentStudent?.id ? '(Kamu)' : ''}</p>
-                            <p class="text-sm text-gray-600">Bergabung: ${new Date(student.joinDate).toLocaleDateString('id-ID')}</p>
+                try {
+                    document.execCommand('copy');
+                    this.showNotification(`📋 Kode "${text}" berhasil disalin!`, 'success');
+                } catch (err) {
+                    this.showNotification('❌ Gagal menyalin kode. Salin manual ya!', 'error');
+                }
+                
+                document.body.removeChild(textArea);
+            }
+            
+            validateStudentName(e) {
+                const name = e.target.value.trim();
+                const startBtn = document.getElementById('startPlaying');
+                
+                if (name.length >= 2) {
+                    startBtn.disabled = false;
+                    startBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                    startBtn.classList.add('bg-gradient-to-r', 'from-purple-500', 'to-pink-500', 'hover:from-purple-600', 'hover:to-pink-600');
+                } else {
+                    startBtn.disabled = true;
+                    startBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                    startBtn.classList.remove('bg-gradient-to-r', 'from-purple-500', 'to-pink-500', 'hover:from-purple-600', 'hover:to-pink-600');
+                }
+            }
+            
+            startPlaying() {
+                const name = document.getElementById('studentNameInput').value.trim();
+                
+                let student = this.students.find(s => s.name.toLowerCase() === name.toLowerCase());
+                if (!student) {
+                    student = {
+                        id: Date.now(),
+                        name: name,
+                        xp: 0,
+                        joinDate: new Date().toISOString()
+                    };
+                    this.students.push(student);
+                    this.saveStudents();
+                }
+                
+                this.currentStudent = student;
+                this.updateStudentInfo();
+                
+                document.getElementById('studentNamePanel').classList.add('hidden');
+                document.getElementById('studentPanel').classList.remove('hidden');
+                document.getElementById('studentInfo').classList.remove('hidden');
+                
+                this.updateLeaderboard();
+            }
+            
+            updateStudentInfo() {
+                if (this.currentStudent) {
+                    document.getElementById('studentName').textContent = this.currentStudent.name;
+                    document.getElementById('xpCount').textContent = this.currentStudent.xp;
+                }
+            }
+            
+            validateQuizForm() {
+                const title = document.getElementById('quizTitle').value.trim();
+                const grade = document.getElementById('quizGrade').value;
+                const objective = document.getElementById('learningObjective').value.trim();
+                const difficulty = document.getElementById('difficulty').value;
+                const embedCode = document.getElementById('embedCode').value.trim();
+                
+                const submitBtn = document.getElementById('submitBtn');
+                
+                if (title && grade && objective && difficulty && embedCode) {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                    submitBtn.classList.add('bg-gradient-to-r', 'from-purple-500', 'to-pink-500', 'hover:from-purple-600', 'hover:to-pink-600');
+                } else {
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                    submitBtn.classList.remove('bg-gradient-to-r', 'from-purple-500', 'to-pink-500', 'hover:from-purple-600', 'hover:to-pink-600');
+                }
+            }
+            
+            submitQuiz(e) {
+                e.preventDefault();
+                
+                const title = document.getElementById('quizTitle').value.trim();
+                const grade = document.getElementById('quizGrade').value;
+                const objective = document.getElementById('learningObjective').value.trim();
+                const difficulty = document.getElementById('difficulty').value;
+                const embedCode = document.getElementById('embedCode').value.trim();
+                
+                const { platform, icon, color } = this.detectPlatform(embedCode);
+                const xp = this.getXPByDifficulty(difficulty);
+                
+                const quiz = {
+                    id: Date.now(),
+                    title,
+                    grade,
+                    objective,
+                    difficulty,
+                    embedCode,
+                    platform,
+                    icon,
+                    color,
+                    xp
+                };
+                
+                this.quizzes.push(quiz);
+                this.saveQuizzes();
+                this.renderQuizzes();
+                
+                document.getElementById('quizForm').reset();
+                this.validateQuizForm();
+                
+                this.showNotification('🎉 Kuis berhasil ditambahkan!', 'success');
+            }
+            
+            detectPlatform(embedCode) {
+                if (embedCode.includes('scratch.mit.edu')) {
+                    return { platform: 'Scratch Game', icon: '🐱', color: 'orange' };
+                } else if (embedCode.includes('wordwall.net')) {
+                    return { platform: 'Wordwall Quiz', icon: '🎯', color: 'blue' };
+                } else if (embedCode.includes('canva.com')) {
+                    return { platform: 'Canva Interactive', icon: '🎨', color: 'pink' };
+                } else if (embedCode.includes('forms.gle') || embedCode.includes('google.com/forms')) {
+                    return { platform: 'Google Form', icon: '📝', color: 'green' };
+                } else if (embedCode.includes('quizizz.com')) {
+                    return { platform: 'Quizizz', icon: '⚡', color: 'purple' };
+                }
+                return { platform: 'Custom HTML', icon: '🎮', color: 'purple' };
+            }
+            
+            getXPByDifficulty(difficulty) {
+                const xpMap = { mudah: 50, sedang: 75, sulit: 100 };
+                return xpMap[difficulty] || 50;
+            }
+            
+            applyFilters() {
+                const filterGrade = document.getElementById('filterGrade').value;
+                const filterDifficulty = document.getElementById('filterDifficulty').value;
+                const searchTerm = document.getElementById('searchQuiz').value.toLowerCase().trim();
+                
+                let filteredQuizzes = [...this.quizzes];
+                
+                if (filterGrade) {
+                    filteredQuizzes = filteredQuizzes.filter(quiz => quiz.grade === filterGrade);
+                }
+                
+                if (filterDifficulty) {
+                    filteredQuizzes = filteredQuizzes.filter(quiz => quiz.difficulty === filterDifficulty);
+                }
+                
+                if (searchTerm) {
+                    filteredQuizzes = filteredQuizzes.filter(quiz => 
+                        quiz.title.toLowerCase().includes(searchTerm) || 
+                        quiz.objective.toLowerCase().includes(searchTerm)
+                    );
+                }
+                
+                this.renderQuizzes(filteredQuizzes);
+            }
+            
+            resetFilters() {
+                document.getElementById('filterGrade').value = '';
+                document.getElementById('filterDifficulty').value = '';
+                document.getElementById('searchQuiz').value = '';
+                this.applyFilters();
+            }
+            
+            renderQuizzes(quizzesToRender = null) {
+                const quizList = document.getElementById('quizList');
+                quizList.innerHTML = '';
+                
+                const quizzesToShow = quizzesToRender || this.quizzes;
+                
+                if (quizzesToShow.length === 0) {
+                    quizList.innerHTML = `
+                        <div class="col-span-full text-center py-12">
+                            <div class="text-6xl mb-4">📚</div>
+                            <h3 class="text-xl font-semibold text-gray-600 mb-2">Tidak ada kuis ditemukan</h3>
+                            <p class="text-gray-500">${this.currentRole === 'teacher' ? 'Tambahkan kuis baru untuk memulai!' : 'Coba ubah filter atau kata kunci pencarian'}</p>
                         </div>
-                    </div>
-                    <span class="text-xl font-bold text-gray-700">${student.xp} XP</span>
-                `;
-                leaderboard.appendChild(item);
-            });
-        }
-
-        // Validasi form guru
-        function validateForm() {
-            const title = document.getElementById('quizTitle').value.trim();
-            const grade = document.getElementById('quizGrade').value;
-            const objective = document.getElementById('learningObjective').value.trim();
-            const difficulty = document.getElementById('difficulty').value;
-            const embedCode = document.getElementById('embedCode').value.trim();
-            
-            const submitBtn = document.getElementById('submitBtn');
-            
-            if (title && grade && objective && difficulty && embedCode) {
-                submitBtn.disabled = false;
-                submitBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
-                submitBtn.classList.add('bg-purple-500', 'hover:bg-purple-600');
-            } else {
-                submitBtn.disabled = true;
-                submitBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
-                submitBtn.classList.remove('bg-purple-500', 'hover:bg-purple-600');
-            }
-        }
-
-        // Event listeners untuk validasi
-        ['quizTitle', 'quizGrade', 'learningObjective', 'difficulty', 'embedCode'].forEach(id => {
-            document.getElementById(id).addEventListener('input', validateForm);
-            document.getElementById(id).addEventListener('change', validateForm);
-        });
-
-        // Submit form
-        document.getElementById('quizForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const title = document.getElementById('quizTitle').value.trim();
-            const grade = document.getElementById('quizGrade').value;
-            const objective = document.getElementById('learningObjective').value.trim();
-            const difficulty = document.getElementById('difficulty').value;
-            const embedCode = document.getElementById('embedCode').value.trim();
-            
-            // Tentukan platform berdasarkan embed code
-            let platform = 'Custom HTML';
-            let icon = '🎮';
-            let color = 'purple';
-            
-            if (embedCode.includes('scratch.mit.edu')) {
-                platform = 'Scratch Game';
-                icon = '🐱';
-                color = 'orange';
-            } else if (embedCode.includes('wordwall.net')) {
-                platform = 'Wordwall Quiz';
-                icon = '🎯';
-                color = 'blue';
-            } else if (embedCode.includes('canva.com')) {
-                platform = 'Canva Interactive';
-                icon = '🎨';
-                color = 'pink';
-            } else if (embedCode.includes('forms.gle') || embedCode.includes('google.com/forms')) {
-                platform = 'Google Form';
-                icon = '📝';
-                color = 'green';
-            } else if (embedCode.includes('quizizz.com')) {
-                platform = 'Quizizz';
-                icon = '⚡';
-                color = 'purple';
+                    `;
+                    return;
+                }
+                
+                quizzesToShow.forEach(quiz => {
+                    const quizCard = this.createQuizCard(quiz);
+                    quizList.appendChild(quizCard);
+                });
             }
             
-            // Tentukan XP berdasarkan kesulitan
-            let xp = 50;
-            if (difficulty === 'mudah') xp = 50;
-            else if (difficulty === 'sedang') xp = 75;
-            else if (difficulty === 'sulit') xp = 100;
-            
-            const quiz = {
-                id: Date.now(),
-                title,
-                grade,
-                objective,
-                difficulty,
-                embedCode,
-                platform,
-                icon,
-                color,
-                xp
-            };
-            
-            quizzes.push(quiz);
-            localStorage.setItem('quizzes', JSON.stringify(quizzes));
-            renderQuizzes();
-            
-            // Reset form
-            document.getElementById('quizForm').reset();
-            validateForm();
-            
-            alert('Kuis berhasil ditambahkan! 🎉');
-        });
-
-        // Fungsi filter kuis
-        function applyFilters() {
-            const filterGrade = document.getElementById('filterGrade').value;
-            const filterDifficulty = document.getElementById('filterDifficulty').value;
-            const searchTerm = document.getElementById('searchQuiz').value.toLowerCase().trim();
-            
-            let filteredQuizzes = quizzes;
-            
-            // Filter berdasarkan fase/kelas
-            if (filterGrade) {
-                filteredQuizzes = filteredQuizzes.filter(quiz => quiz.grade === filterGrade);
-            }
-            
-            // Filter berdasarkan tingkat kesulitan
-            if (filterDifficulty) {
-                filteredQuizzes = filteredQuizzes.filter(quiz => quiz.difficulty === filterDifficulty);
-            }
-            
-            // Filter berdasarkan pencarian materi
-            if (searchTerm) {
-                filteredQuizzes = filteredQuizzes.filter(quiz => 
-                    quiz.title.toLowerCase().includes(searchTerm) || 
-                    quiz.objective.toLowerCase().includes(searchTerm)
-                );
-            }
-            
-            renderQuizzes(filteredQuizzes);
-        }
-
-        // Event listeners untuk filter
-        document.getElementById('filterGrade').addEventListener('change', applyFilters);
-        document.getElementById('filterDifficulty').addEventListener('change', applyFilters);
-        document.getElementById('searchQuiz').addEventListener('input', applyFilters);
-
-        // Reset filter
-        document.getElementById('resetFilters').addEventListener('click', function() {
-            document.getElementById('filterGrade').value = '';
-            document.getElementById('filterDifficulty').value = '';
-            document.getElementById('searchQuiz').value = '';
-            applyFilters();
-        });
-
-        // Render daftar kuis
-        function renderQuizzes(quizzesToRender = null) {
-            const quizList = document.getElementById('quizList');
-            
-            // Hapus semua kuis yang ditambahkan secara dinamis
-            const dynamicQuizzes = quizList.querySelectorAll('.dynamic-quiz');
-            dynamicQuizzes.forEach(quiz => quiz.remove());
-            
-            const quizzesToShow = quizzesToRender || quizzes;
-            
-            if (quizzesToShow.length === 0) {
-                const emptyMessage = document.createElement('div');
-                emptyMessage.className = 'dynamic-quiz col-span-full text-center py-12';
-                emptyMessage.innerHTML = `
-                    <div class="text-6xl mb-4">📚</div>
-                    <h3 class="text-xl font-semibold text-gray-600 mb-2">Tidak ada kuis ditemukan</h3>
-                    <p class="text-gray-500">${currentRole === 'teacher' ? 'Tambahkan kuis baru untuk memulai!' : 'Coba ubah filter atau kata kunci pencarian'}</p>
-                `;
-                quizList.appendChild(emptyMessage);
-                return;
-            }
-            
-            quizzesToShow.forEach(quiz => {
+            createQuizCard(quiz) {
                 const colorClasses = {
                     purple: 'from-purple-400 to-purple-600',
                     blue: 'from-blue-400 to-blue-600',
@@ -1050,7 +1723,7 @@
                 };
                 
                 const quizCard = document.createElement('div');
-                quizCard.className = 'quiz-card dynamic-quiz card-hover bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm';
+                quizCard.className = 'quiz-card card-hover bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm';
                 quizCard.innerHTML = `
                     <div class="relative p-6 bg-gradient-to-br ${colorClasses[quiz.color]} text-white text-center">
                         <span class="text-4xl mb-2 block">${quiz.icon}</span>
@@ -1066,153 +1739,315 @@
                         <h3 class="text-lg font-bold text-gray-800 mb-2">${quiz.title}</h3>
                         <p class="text-gray-600 text-sm mb-4">${quiz.objective}</p>
                         <div class="space-y-2">
-                            <button class="play-quiz w-full ${buttonColors[quiz.color]} text-white py-2 rounded-lg transition-colors font-semibold" data-xp="${quiz.xp}" data-title="${quiz.title}" data-embed="${encodeURIComponent(quiz.embedCode)}">
+                            <button class="play-quiz w-full ${buttonColors[quiz.color]} text-white py-2 rounded-lg transition-colors font-semibold" data-quiz-id="${quiz.id}">
                                 🎮 Main Sekarang
                             </button>
-                            <button class="delete-quiz ${currentRole === 'teacher' ? '' : 'hidden'} w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition-colors font-semibold text-sm" data-quiz-id="${quiz.id}" data-quiz-title="${quiz.title}">
+                            <button class="delete-quiz ${this.currentRole === 'owner' ? '' : 'hidden'} w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition-colors font-semibold text-sm" data-quiz-id="${quiz.id}">
                                 🗑️ Hapus Kuis
                             </button>
                         </div>
                     </div>
                 `;
-                quizList.appendChild(quizCard);
-            });
-        }
-
-        // Event delegation untuk tombol play quiz dan hapus kuis
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('delete-quiz')) {
-                const quizId = parseInt(e.target.dataset.quizId);
-                const quizTitle = e.target.dataset.quizTitle;
-                
-                // Konfirmasi hapus dengan modal custom
-                showDeleteConfirmation(quizId, quizTitle);
-            } else if (e.target.classList.contains('play-quiz')) {
-                if (currentRole === 'student' && currentStudent) {
-                    const xp = parseInt(e.target.dataset.xp);
-                    const title = e.target.dataset.title;
-                    const embedCode = decodeURIComponent(e.target.dataset.embed);
-                    
-                    // Tampilkan modal
-                    document.getElementById('modalTitle').textContent = title;
-                    document.getElementById('quizContent').innerHTML = embedCode;
-                    document.getElementById('quizModal').classList.remove('hidden');
-                    
-                    // Simpan XP untuk nanti
-                    document.getElementById('completeQuiz').dataset.xp = xp;
-                } else if (currentRole === 'student' && !currentStudent) {
-                    alert('Silakan masukkan nama kamu terlebih dahulu! 👨‍🎓');
-                } else {
-                    alert('Silakan ganti ke mode Siswa untuk bermain kuis! 👨‍🎓');
+                return quizCard;
+            }
+            
+            handleDynamicClicks(e) {
+                if (e.target.classList.contains('play-quiz')) {
+                    const quizId = parseInt(e.target.dataset.quizId);
+                    this.playQuiz(quizId);
+                } else if (e.target.classList.contains('delete-quiz')) {
+                    const quizId = parseInt(e.target.dataset.quizId);
+                    this.showDeleteModal(quizId);
+                } else if (e.target.classList.contains('delete-student')) {
+                    const studentId = parseInt(e.target.dataset.studentId);
+                    const studentName = e.target.dataset.studentName;
+                    this.deleteStudent(studentId, studentName);
+                } else if (e.target.classList.contains('delete-teacher-code')) {
+                    const codeId = parseInt(e.target.dataset.codeId);
+                    const code = e.target.dataset.code;
+                    this.showDeleteCodeModal(codeId, code);
+                } else if (e.target.classList.contains('copy-code')) {
+                    const code = e.target.dataset.code;
+                    this.copyToClipboard(code);
                 }
             }
-        });
-
-        // Close modal
-        document.getElementById('closeModal').addEventListener('click', function() {
-            document.getElementById('quizModal').classList.add('hidden');
-        });
-
-        // Complete quiz dan dapatkan XP
-        document.getElementById('completeQuiz').addEventListener('click', function() {
-            const xp = parseInt(this.dataset.xp);
-            currentStudent.xp += xp;
             
-            // Update localStorage
-            const studentIndex = students.findIndex(s => s.id === currentStudent.id);
-            students[studentIndex] = currentStudent;
-            localStorage.setItem('students', JSON.stringify(students));
-            
-            document.getElementById('xpCount').textContent = currentStudent.xp;
-            document.getElementById('xpCount').classList.add('xp-animation');
-            
-            setTimeout(() => {
-                document.getElementById('xpCount').classList.remove('xp-animation');
-            }, 600);
-            
-            document.getElementById('quizModal').classList.add('hidden');
-            updateLeaderboard();
-            
-            // Tampilkan notifikasi XP
-            showNotification(`🎉 Selamat ${currentStudent.name}! Kamu mendapat ${xp} XP!`, 'success');
-        });
-
-        // Fungsi untuk menampilkan konfirmasi hapus
-        function showDeleteConfirmation(quizId, quizTitle) {
-            document.getElementById('deleteQuizTitle').textContent = quizTitle;
-            document.getElementById('deleteModal').classList.remove('hidden');
-            
-            // Simpan ID kuis yang akan dihapus
-            document.getElementById('confirmDelete').dataset.quizId = quizId;
-        }
-
-        // Event listener untuk modal konfirmasi hapus
-        document.getElementById('cancelDelete').addEventListener('click', function() {
-            document.getElementById('deleteModal').classList.add('hidden');
-        });
-
-        document.getElementById('confirmDelete').addEventListener('click', function() {
-            const quizId = parseInt(this.dataset.quizId);
-            
-            // Hapus kuis dari array
-            quizzes = quizzes.filter(quiz => quiz.id !== quizId);
-            
-            // Update localStorage
-            localStorage.setItem('quizzes', JSON.stringify(quizzes));
-            
-            // Render ulang daftar kuis
-            renderQuizzes();
-            
-            // Tutup modal
-            document.getElementById('deleteModal').classList.add('hidden');
-            
-            // Tampilkan notifikasi
-            showNotification('🗑️ Kuis berhasil dihapus!', 'success');
-        });
-
-        // Update tampilan tombol hapus berdasarkan role
-        function updateDeleteButtons() {
-            const deleteButtons = document.querySelectorAll('.delete-quiz');
-            deleteButtons.forEach(button => {
-                if (currentRole === 'teacher') {
-                    button.classList.remove('hidden');
+            playQuiz(quizId) {
+                const quiz = this.quizzes.find(q => q.id === quizId);
+                if (!quiz) return;
+                
+                if (this.currentRole === 'student' && this.currentStudent) {
+                    document.getElementById('modalTitle').textContent = quiz.title;
+                    document.getElementById('quizContent').innerHTML = quiz.embedCode;
+                    document.getElementById('quizModal').classList.remove('hidden');
+                    document.getElementById('completeQuiz').dataset.xp = quiz.xp;
+                } else if (this.currentRole === 'student' && !this.currentStudent) {
+                    this.showNotification('❌ Silakan masukkan nama kamu terlebih dahulu!', 'error');
+                } else if (this.currentRole === 'teacher') {
+                    // Teacher can preview quiz
+                    document.getElementById('modalTitle').textContent = `[PREVIEW GURU] ${quiz.title}`;
+                    document.getElementById('quizContent').innerHTML = quiz.embedCode;
+                    document.getElementById('quizModal').classList.remove('hidden');
+                    document.getElementById('completeQuiz').style.display = 'none';
+                } else if (this.currentRole === 'owner') {
+                    // Owner can preview quiz
+                    document.getElementById('modalTitle').textContent = `[PREVIEW OWNER] ${quiz.title}`;
+                    document.getElementById('quizContent').innerHTML = quiz.embedCode;
+                    document.getElementById('quizModal').classList.remove('hidden');
+                    document.getElementById('completeQuiz').style.display = 'none';
                 } else {
-                    button.classList.add('hidden');
+                    this.showNotification('❌ Silakan ganti ke mode Siswa untuk bermain kuis!', 'error');
                 }
-            });
-        }
-
-        // Notification system
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
+            }
             
-            let bgColor = 'bg-blue-500';
-            if (type === 'success') bgColor = 'bg-green-500';
-            else if (type === 'error') bgColor = 'bg-red-500';
-            else if (type === 'warning') bgColor = 'bg-yellow-500';
+            closeQuizModal() {
+                document.getElementById('quizModal').classList.add('hidden');
+                document.getElementById('completeQuiz').style.display = 'block'; // Reset for next use
+            }
             
-            notification.className = `notification-slide fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 max-w-sm`;
-            notification.innerHTML = message;
-            document.body.appendChild(notification);
+            completeQuiz() {
+                const xp = parseInt(document.getElementById('completeQuiz').dataset.xp);
+                this.currentStudent.xp += xp;
+                
+                const studentIndex = this.students.findIndex(s => s.id === this.currentStudent.id);
+                this.students[studentIndex] = this.currentStudent;
+                this.saveStudents();
+                
+                this.updateStudentInfo();
+                
+                const xpElement = document.getElementById('xpCount');
+                xpElement.classList.add('xp-animation');
+                setTimeout(() => xpElement.classList.remove('xp-animation'), 800);
+                
+                this.closeQuizModal();
+                this.updateLeaderboard();
+                
+                this.showNotification(`🎉 Selamat ${this.currentStudent.name}! Kamu mendapat ${xp} XP!`, 'success');
+            }
             
-            setTimeout(() => {
-                notification.style.opacity = '0';
-                notification.style.transform = 'translateX(100px)';
-                setTimeout(() => {
-                    if (notification.parentNode) {
-                        notification.remove();
+            showDeleteModal(quizId) {
+                const quiz = this.quizzes.find(q => q.id === quizId);
+                if (!quiz) return;
+                
+                document.getElementById('deleteQuizTitle').textContent = quiz.title;
+                document.getElementById('deleteModal').classList.remove('hidden');
+                document.getElementById('confirmDelete').dataset.quizId = quizId;
+            }
+            
+            hideDeleteModal() {
+                document.getElementById('deleteModal').classList.add('hidden');
+            }
+            
+            confirmDeleteQuiz() {
+                const quizId = parseInt(document.getElementById('confirmDelete').dataset.quizId);
+                this.quizzes = this.quizzes.filter(quiz => quiz.id !== quizId);
+                this.saveQuizzes();
+                this.renderQuizzes();
+                this.hideDeleteModal();
+                this.showNotification('🗑️ Kuis berhasil dihapus!', 'success');
+            }
+            
+            updateLeaderboard() {
+                const leaderboard = document.getElementById('leaderboard');
+                const sortedStudents = [...this.students].sort((a, b) => b.xp - a.xp);
+                
+                leaderboard.innerHTML = '';
+                
+                if (sortedStudents.length === 0) {
+                    leaderboard.innerHTML = '<p class="text-gray-500 text-center py-8">Belum ada siswa yang bermain. Jadilah yang pertama! 🚀</p>';
+                    return;
+                }
+                
+                sortedStudents.forEach((student, index) => {
+                    const item = this.createLeaderboardItem(student, index, false);
+                    leaderboard.appendChild(item);
+                });
+            }
+            
+            updateTeacherLeaderboard() {
+                const teacherLeaderboard = document.getElementById('teacherLeaderboard');
+                const sortedStudents = [...this.students].sort((a, b) => b.xp - a.xp);
+                
+                teacherLeaderboard.innerHTML = '';
+                
+                if (sortedStudents.length === 0) {
+                    teacherLeaderboard.innerHTML = '<p class="text-gray-500 text-center py-8">Belum ada siswa yang terdaftar. 📊</p>';
+                    return;
+                }
+                
+                sortedStudents.forEach((student, index) => {
+                    const item = this.createLeaderboardItem(student, index, true);
+                    teacherLeaderboard.appendChild(item);
+                });
+            }
+            
+            createLeaderboardItem(student, index, isTeacher) {
+                const medals = ['🥇', '🥈', '🥉'];
+                const medal = medals[index] || '🏅';
+                const colors = ['border-yellow-400 bg-yellow-50', 'border-gray-400 bg-gray-50', 'border-orange-400 bg-orange-50'];
+                const color = colors[index] || 'border-blue-400 bg-blue-50';
+                
+                const item = document.createElement('div');
+                item.className = `leaderboard-item flex items-center justify-between p-4 rounded-lg border-l-4 ${color}`;
+                
+                const isCurrentStudent = this.currentStudent && student.id === this.currentStudent.id;
+                const nameDisplay = isCurrentStudent ? `${student.name} (Kamu)` : student.name;
+                
+                item.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl">${medal}</span>
+                        <div>
+                            <p class="font-semibold text-gray-800">${nameDisplay}</p>
+                            <p class="text-sm text-gray-600">Bergabung: ${new Date(student.joinDate).toLocaleDateString('id-ID')}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <span class="text-xl font-bold text-gray-700">${student.xp} XP</span>
+                        ${isTeacher ? `
+                            <button class="delete-student bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors" data-student-id="${student.id}" data-student-name="${student.name}">
+                                🗑️ Hapus
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+                
+                return item;
+            }
+            
+            deleteStudent(studentId, studentName) {
+                // Create custom confirmation modal instead of browser confirm
+                const confirmDelete = () => {
+                    // Check if this is the current student
+                    if (this.currentStudent && this.currentStudent.id === studentId) {
+                        this.currentStudent = null;
+                        if (this.currentRole === 'student') {
+                            document.getElementById('studentInfo').classList.add('hidden');
+                            document.getElementById('studentNamePanel').classList.remove('hidden');
+                            document.getElementById('studentNameInput').value = '';
+                            this.validateStudentName({ target: { value: '' } });
+                        }
                     }
-                }, 300);
-            }, 3000);
+                    
+                    this.students = this.students.filter(student => student.id !== studentId);
+                    this.saveStudents();
+                    
+                    // Update appropriate leaderboards
+                    this.updateLeaderboard();
+                    if (this.currentRole === 'owner') {
+                        this.updateOwnerLeaderboard();
+                    }
+                    
+                    this.showNotification(`🗑️ Siswa "${studentName}" berhasil dihapus!`, 'success');
+                };
+                
+                // Show inline confirmation
+                const deleteButton = event.target;
+                const originalText = deleteButton.innerHTML;
+                deleteButton.innerHTML = '❓ Yakin?';
+                deleteButton.classList.add('bg-orange-500', 'hover:bg-orange-600');
+                deleteButton.classList.remove('bg-red-500', 'hover:bg-red-600');
+                
+                const confirmHandler = () => {
+                    confirmDelete();
+                    deleteButton.removeEventListener('click', confirmHandler);
+                };
+                
+                const resetButton = () => {
+                    deleteButton.innerHTML = originalText;
+                    deleteButton.classList.remove('bg-orange-500', 'hover:bg-orange-600');
+                    deleteButton.classList.add('bg-red-500', 'hover:bg-red-600');
+                    deleteButton.removeEventListener('click', confirmHandler);
+                };
+                
+                deleteButton.addEventListener('click', confirmHandler);
+                setTimeout(resetButton, 3000);
+            }
+            
+            refreshLeaderboard() {
+                this.updateTeacherLeaderboard();
+                this.showNotification('🔄 Leaderboard berhasil direfresh!', 'info');
+            }
+            
+            showResetLeaderboardModal() {
+                document.getElementById('resetLeaderboardModal').classList.remove('hidden');
+            }
+            
+            hideResetLeaderboardModal() {
+                document.getElementById('resetLeaderboardModal').classList.add('hidden');
+            }
+            
+            resetLeaderboard() {
+                this.students = [];
+                this.currentStudent = null;
+                this.saveStudents();
+                
+                // Update all leaderboards
+                this.updateLeaderboard();
+                if (this.currentRole === 'owner') {
+                    this.updateOwnerLeaderboard();
+                }
+                
+                // Reset student info if in student mode
+                if (this.currentRole === 'student') {
+                    document.getElementById('studentInfo').classList.add('hidden');
+                    document.getElementById('studentNamePanel').classList.remove('hidden');
+                    document.getElementById('studentNameInput').value = '';
+                    this.validateStudentName({ target: { value: '' } });
+                }
+                
+                this.hideResetLeaderboardModal();
+                this.showNotification('🗑️ Semua data siswa berhasil direset!', 'success');
+            }
+            
+            updateDeleteButtons() {
+                const deleteButtons = document.querySelectorAll('.delete-quiz');
+                deleteButtons.forEach(button => {
+                    if (this.currentRole === 'owner') {
+                        button.classList.remove('hidden');
+                    } else {
+                        button.classList.add('hidden');
+                    }
+                });
+            }
+            
+            showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                
+                let bgColor = 'bg-blue-500';
+                if (type === 'success') bgColor = 'bg-green-500';
+                else if (type === 'error') bgColor = 'bg-red-500';
+                else if (type === 'warning') bgColor = 'bg-yellow-500';
+                
+                notification.className = `notification-slide fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 max-w-sm`;
+                notification.innerHTML = message;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    notification.style.transform = 'translateX(100px)';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.remove();
+                        }
+                    }, 300);
+                }, 3000);
+            }
+            
+            saveStudents() {
+                localStorage.setItem('students', JSON.stringify(this.students));
+            }
+            
+            saveQuizzes() {
+                localStorage.setItem('quizzes', JSON.stringify(this.quizzes));
+            }
+            
+            saveTeacherCodes() {
+                localStorage.setItem('teacherCodes', JSON.stringify(this.teacherCodes));
+            }
         }
-
-        // Inisialisasi
-        validateForm();
-        renderQuizzes();
-        updateDeleteButtons();
         
-        // Start in teacher mode by default but require authentication
-        switchToStudentMode();
+        // Initialize the application
+        const app = new EduQuizApp();
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98fa16f425f4f93b',t:'MTc2MDY0NDI3My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98faeb0514739ccb',t:'MTc2MDY1Mjk2MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
