@@ -43,31 +43,65 @@
             from { opacity: 0; transform: translateX(-20px); }
             to { opacity: 1; transform: translateX(0); }
         }
+        
+        /* Responsive styles untuk mobile */
+        @media (max-width: 640px) {
+            .quiz-embed {
+                height: 300px;
+            }
+            
+            #quizContent iframe {
+                width: 100% !important;
+                height: 100% !important;
+                min-height: 300px;
+            }
+            
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+        
+        @media (min-width: 641px) and (max-width: 1024px) {
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
     <header class="gradient-bg text-white shadow-lg">
-        <div class="container mx-auto px-6 py-4">
-            <div class="flex justify-between items-center">
-                <h1 class="text-3xl font-bold">🎮 Dashboard Kuis Interaktif</h1>
-                <div class="flex items-center space-x-4">
-                    <button id="toggleRole" class="bg-white text-purple-600 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
-                        Mode: <span id="currentRole">Guru</span>
-                    </button>
-                    <div id="studentInfo" class="hidden flex items-center space-x-3">
-                        <div class="bg-white bg-opacity-20 px-3 py-2 rounded-lg">
-                            <span class="text-sm">Halo, <span id="studentName" class="font-bold"></span>!</span>
-                        </div>
-                        <div class="bg-yellow-400 text-purple-800 px-4 py-2 rounded-lg font-bold">
-                            XP: <span id="xpCount">0</span>
-                        </div>
+        <div class="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
+            <div class="text-center mb-6">
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4">🎮 Dashboard Kuis Interaktif</h1>
+                <p class="text-lg sm:text-xl text-white text-opacity-90">Platform pembelajaran gamifikasi untuk guru dan siswa</p>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                <button id="toggleRole" class="bg-white text-purple-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-colors shadow-lg transform hover:scale-105">
+                    <span class="block text-sm text-gray-500 mb-1">Pilih Mode:</span>
+                    <span id="currentRole" class="text-2xl">👨‍🏫 Guru</span>
+                </button>
+                
+                <div id="studentInfo" class="hidden flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                    <div class="bg-white bg-opacity-20 px-4 py-3 rounded-xl backdrop-blur-sm">
+                        <span class="text-lg">Halo, <span id="studentName" class="font-bold text-yellow-300"></span>! 👋</span>
+                    </div>
+                    <div class="bg-yellow-400 text-purple-800 px-6 py-3 rounded-xl font-bold text-lg shadow-lg">
+                        <span class="block text-xs text-purple-600">Total XP</span>
+                        <span id="xpCount" class="text-2xl">0</span>
                     </div>
                 </div>
             </div>
         </div>
     </header>
 
-    <main class="container mx-auto px-6 py-8">
+    <main class="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <!-- Panel Input Nama Siswa -->
         <div id="studentNamePanel" class="hidden mb-8">
             <div class="bg-white rounded-xl shadow-lg p-6 text-center">
@@ -214,19 +248,31 @@
     </main>
 
     <!-- Modal untuk menampilkan kuis -->
-    <div id="quizModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-xl p-6 max-w-5xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-4">
-                <h3 id="modalTitle" class="text-2xl font-bold text-gray-800"></h3>
-                <button id="closeModal" class="text-gray-500 hover:text-gray-700 text-2xl">✕</button>
+    <div id="quizModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+        <div class="bg-white rounded-xl w-full max-w-6xl max-h-[95vh] flex flex-col">
+            <!-- Header Modal -->
+            <div class="flex justify-between items-center p-4 sm:p-6 border-b border-gray-200">
+                <h3 id="modalTitle" class="text-lg sm:text-2xl font-bold text-gray-800 truncate pr-4"></h3>
+                <button id="closeModal" class="text-gray-500 hover:text-gray-700 text-2xl sm:text-3xl flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100">✕</button>
             </div>
-            <div id="quizContent" class="w-full min-h-96 bg-gray-100 rounded-lg">
-                <!-- Konten kuis akan dimuat di sini -->
+            
+            <!-- Konten Kuis -->
+            <div class="flex-1 overflow-hidden">
+                <div id="quizContent" class="w-full h-full min-h-[300px] sm:min-h-[400px] md:min-h-[500px] bg-gray-100">
+                    <!-- Konten kuis akan dimuat di sini -->
+                </div>
             </div>
-            <div class="mt-4 text-center">
-                <button id="completeQuiz" class="bg-purple-500 text-white px-6 py-3 rounded-lg hover:bg-purple-600 transition-colors font-semibold">
-                    ✅ Selesai & Dapatkan XP
-                </button>
+            
+            <!-- Footer Modal -->
+            <div class="p-4 sm:p-6 border-t border-gray-200 bg-gray-50">
+                <div class="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+                    <div class="text-center text-sm text-gray-600">
+                        <p>Selesaikan kuis untuk mendapatkan XP! 🎯</p>
+                    </div>
+                    <button id="completeQuiz" class="w-full sm:w-auto bg-purple-500 text-white px-8 py-3 rounded-xl hover:bg-purple-600 transition-colors font-semibold text-lg shadow-lg">
+                        ✅ Selesai & Dapatkan XP
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -240,15 +286,16 @@
         // Toggle antara mode guru dan siswa
         document.getElementById('toggleRole').addEventListener('click', function() {
             currentRole = currentRole === 'teacher' ? 'student' : 'teacher';
-            document.getElementById('currentRole').textContent = currentRole === 'teacher' ? 'Guru' : 'Siswa';
             
             if (currentRole === 'teacher') {
+                document.getElementById('currentRole').innerHTML = '👨‍🏫 Guru';
                 document.getElementById('teacherPanel').classList.remove('hidden');
                 document.getElementById('studentPanel').classList.add('hidden');
                 document.getElementById('studentNamePanel').classList.add('hidden');
                 document.getElementById('studentInfo').classList.add('hidden');
                 currentStudent = null;
             } else {
+                document.getElementById('currentRole').innerHTML = '👨‍🎓 Siswa';
                 document.getElementById('teacherPanel').classList.add('hidden');
                 if (currentStudent) {
                     document.getElementById('studentPanel').classList.remove('hidden');
@@ -562,5 +609,37 @@
         // Inisialisasi
         validateForm();
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98f92687e33a87f3',t:'MTc2MDYzNDQyNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+   
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98f941a196195c30',t:'MTc2MDYzNTUzNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+
+<script>
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzsqKJlX8fVhv4hm7P5TakrKRn9fR-Yl_wyKU9jXHYBKVyWyXcLfuQg7Cu3nr4TJkPeJQ/exec'; // ganti dengan URL-mu
+
+// kirim data kuis ke Google Sheet
+async function sendQuiz(quiz) {
+  const res = await fetch(WEB_APP_URL, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({action: 'addQuiz', quiz})
+  });
+  const result = await res.json();
+  console.log(result);
+}
+
+// contoh pemanggilan
+sendQuiz({
+  id: Date.now(),
+  title: 'Kuis Logika',
+  grade: '8',
+  objective: 'Berpikir Komputasional',
+  difficulty: 'Sedang',
+  xp: 50,
+  embedCode: '',
+  platform: 'Quizizz',
+  icon: 'quiz.png',
+  color: '#4CAF50'
+});
+</script>
+
 </html>
+
