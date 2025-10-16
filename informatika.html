@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Kuis Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .xp-animation {
+            animation: bounce 0.6s ease-in-out;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        .difficulty-easy { background: linear-gradient(135deg, #10b981, #34d399); }
+        .difficulty-medium { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+        .difficulty-hard { background: linear-gradient(135deg, #ef4444, #f87171); }
+        .quiz-embed {
+            width: 100%;
+            height: 400px;
+            border: none;
+            border-radius: 8px;
+        }
+        .leaderboard-item {
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        /* Responsive styles untuk mobile */
+        @media (max-width: 640px) {
+            .quiz-embed {
+                height: 300px;
+            }
+            
+            #quizContent iframe {
+                width: 100% !important;
+                height: 100% !important;
+                min-height: 300px;
+            }
+            
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+        
+        @media (min-width: 641px) and (max-width: 1024px) {
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
+            <div class="text-center mb-6">
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4">🎮 Dashboard Kuis Interaktif</h1>
+                <p class="text-lg sm:text-xl text-white text-opacity-90">Platform pembelajaran gamifikasi untuk guru dan siswa</p>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                <button id="toggleRole" class="bg-white text-purple-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-colors shadow-lg transform hover:scale-105">
+                    <span class="block text-sm text-gray-500 mb-1">Pilih Mode:</span>
+                    <span id="currentRole" class="text-2xl">👨‍🏫 Guru</span>
+                </button>
+                
+                <div id="studentInfo" class="hidden flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                    <div class="bg-white bg-opacity-20 px-4 py-3 rounded-xl backdrop-blur-sm">
+                        <span class="text-lg">Halo, <span id="studentName" class="font-bold text-yellow-300"></span>! 👋</span>
+                    </div>
+                    <div class="bg-yellow-400 text-purple-800 px-6 py-3 rounded-xl font-bold text-lg shadow-lg">
+                        <span class="block text-xs text-purple-600">Total XP</span>
+                        <span id="xpCount" class="text-2xl">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <!-- Panel Input Nama Siswa -->
+        <div id="studentNamePanel" class="hidden mb-8">
+            <div class="bg-white rounded-xl shadow-lg p-6 text-center">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">👋 Selamat Datang, Siswa!</h2>
+                <p class="text-gray-600 mb-6">Masukkan nama kamu untuk mulai bermain dan mengumpulkan XP</p>
+                <div class="max-w-md mx-auto">
+                    <input type="text" id="studentNameInput" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-center text-lg" placeholder="Masukkan nama kamu...">
+                    <button id="startPlaying" class="w-full mt-4 bg-purple-500 text-white py-3 px-6 rounded-lg font-semibold hover:bg-purple-600 transition-colors" disabled>
+                        🚀 Mulai Bermain!
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Guru -->
+        <div id="teacherPanel" class="mb-8">
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">➕ Tambah Kuis/Game Baru</h2>
+                
+                <form id="quizForm" class="space-y-6">
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="quizTitle" class="block text-sm font-medium text-gray-700 mb-2">Judul Materi Kuis/Game</label>
+                            <input type="text" id="quizTitle" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Contoh: Matematika Dasar">
+                        </div>
+                        <div>
+                            <label for="quizGrade" class="block text-sm font-medium text-gray-700 mb-2">Fase/Kelas</label>
+                            <select id="quizGrade" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <option value="">Pilih Fase/Kelas</option>
+                                <option value="Fase A (Kelas 1-2)">Fase A (Kelas 1-2)</option>
+                                <option value="Fase B (Kelas 3-4)">Fase B (Kelas 3-4)</option>
+                                <option value="Fase C (Kelas 5-6)">Fase C (Kelas 5-6)</option>
+                                <option value="Fase D (Kelas 7-9)">Fase D (Kelas 7-9)</option>
+                                <option value="Fase E (Kelas 10)">Fase E (Kelas 10)</option>
+                                <option value="Fase F (Kelas 11-12)">Fase F (Kelas 11-12)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="learningObjective" class="block text-sm font-medium text-gray-700 mb-2">Tujuan Pembelajaran</label>
+                        <textarea id="learningObjective" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Siswa dapat memahami dan menerapkan..."></textarea>
+                    </div>
+
+                    <div>
+                        <label for="difficulty" class="block text-sm font-medium text-gray-700 mb-2">Tingkat Kesulitan</label>
+                        <select id="difficulty" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <option value="">Pilih Tingkat Kesulitan</option>
+                            <option value="mudah">🟢 Mudah (50 XP)</option>
+                            <option value="sedang">🟡 Sedang (75 XP)</option>
+                            <option value="sulit">🔴 Sulit (100 XP)</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="embedCode" class="block text-sm font-medium text-gray-700 mb-2">Kode Embed HTML Kuis</label>
+                        <textarea id="embedCode" rows="6" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono text-sm" placeholder='Contoh: <iframe src="https://wordwall.net/embed/..." width="100%" height="400"></iframe>'></textarea>
+                        <p class="text-sm text-gray-500 mt-1">Mendukung: Scratch, Wordwall, Canva, Google Form, Quizizz (paste kode embed HTML lengkap)</p>
+                    </div>
+                    
+                    <button type="submit" id="submitBtn" class="w-full bg-gray-400 text-white py-3 px-6 rounded-lg font-semibold cursor-not-allowed" disabled>
+                        Tambah Kuis/Game
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Panel Siswa - Leaderboard -->
+        <div id="studentPanel" class="hidden mb-8">
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">🏆 Leaderboard</h2>
+                <div id="leaderboard" class="space-y-3">
+                    <!-- Leaderboard akan diisi secara dinamis -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Daftar Kuis/Game -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">📚 Kuis/Game Tersedia</h2>
+            <div id="quizList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Contoh kuis yang sudah ada -->
+                <div class="quiz-card card-hover bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+                    <div class="relative p-6 bg-gradient-to-br from-blue-400 to-blue-600 text-white text-center">
+                        <span class="text-4xl mb-2 block">🧮</span>
+                        <div class="absolute top-2 right-2">
+                            <span class="difficulty-easy text-white px-2 py-1 rounded-full text-xs font-bold">🟢 MUDAH</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-semibold">Fase B (Kelas 3-4)</span>
+                            <span class="text-xs text-gray-500">Scratch Game</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-800 mb-2">Perkalian Dasar</h3>
+                        <p class="text-gray-600 text-sm mb-4">Siswa dapat memahami konsep perkalian 1-10 dengan cara yang menyenangkan</p>
+                        <button class="play-quiz w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition-colors font-semibold" data-xp="50" data-title="Perkalian Dasar" data-embed='<div style="text-align: center; padding: 40px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 8px;"><h3>🧮 Perkalian Dasar</h3><p>Kuis interaktif akan dimuat di sini...</p><p style="margin-top: 20px; font-size: 14px;">Platform: Scratch Game</p></div>'>
+                            🎮 Main Sekarang
+                        </button>
+                    </div>
+                </div>
+
+                <div class="quiz-card card-hover bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+                    <div class="relative p-6 bg-gradient-to-br from-green-400 to-green-600 text-white text-center">
+                        <span class="text-4xl mb-2 block">🌍</span>
+                        <div class="absolute top-2 right-2">
+                            <span class="difficulty-medium text-white px-2 py-1 rounded-full text-xs font-bold">🟡 SEDANG</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-semibold">Fase C (Kelas 5-6)</span>
+                            <span class="text-xs text-gray-500">Wordwall Quiz</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-800 mb-2">Geografi Indonesia</h3>
+                        <p class="text-gray-600 text-sm mb-4">Mengenal provinsi dan ibukota di Indonesia melalui kuis interaktif</p>
+                        <button class="play-quiz w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition-colors font-semibold" data-xp="75" data-title="Geografi Indonesia" data-embed='<div style="text-align: center; padding: 40px; background: linear-gradient(135deg, #10b981, #34d399); color: white; border-radius: 8px;"><h3>🌍 Geografi Indonesia</h3><p>Kuis interaktif akan dimuat di sini...</p><p style="margin-top: 20px; font-size: 14px;">Platform: Wordwall Quiz</p></div>'>
+                            🎮 Main Sekarang
+                        </button>
+                    </div>
+                </div>
+
+                <div class="quiz-card card-hover bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+                    <div class="relative p-6 bg-gradient-to-br from-purple-400 to-purple-600 text-white text-center">
+                        <span class="text-4xl mb-2 block">🧪</span>
+                        <div class="absolute top-2 right-2">
+                            <span class="difficulty-hard text-white px-2 py-1 rounded-full text-xs font-bold">🔴 SULIT</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-semibold">Fase D (Kelas 7-9)</span>
+                            <span class="text-xs text-gray-500">Quizizz</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-800 mb-2">Kimia Dasar</h3>
+                        <p class="text-gray-600 text-sm mb-4">Memahami tabel periodik dan reaksi kimia sederhana</p>
+                        <button class="play-quiz w-full bg-purple-500 text-white py-2 rounded-lg hover:bg-purple-600 transition-colors font-semibold" data-xp="100" data-title="Kimia Dasar" data-embed='<div style="text-align: center; padding: 40px; background: linear-gradient(135deg, #ef4444, #f87171); color: white; border-radius: 8px;"><h3>🧪 Kimia Dasar</h3><p>Kuis interaktif akan dimuat di sini...</p><p style="margin-top: 20px; font-size: 14px;">Platform: Quizizz</p></div>'>
+                            🎮 Main Sekarang
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal konfirmasi hapus -->
+    <div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+            <div class="text-center">
+                <div class="text-6xl mb-4">🗑️</div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Hapus Kuis?</h3>
+                <p class="text-gray-600 mb-6">Apakah kamu yakin ingin menghapus kuis "<span id="deleteQuizTitle" class="font-semibold"></span>"? Tindakan ini tidak dapat dibatalkan.</p>
+                <div class="flex space-x-3">
+                    <button id="cancelDelete" class="flex-1 bg-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-400 transition-colors font-semibold">
+                        Batal
+                    </button>
+                    <button id="confirmDelete" class="flex-1 bg-red-500 text-white py-3 px-4 rounded-lg hover:bg-red-600 transition-colors font-semibold">
+                        Ya, Hapus
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal untuk menampilkan kuis -->
+    <div id="quizModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+        <div class="bg-white rounded-xl w-full max-w-6xl max-h-[95vh] flex flex-col">
+            <!-- Header Modal -->
+            <div class="flex justify-between items-center p-4 sm:p-6 border-b border-gray-200">
+                <h3 id="modalTitle" class="text-lg sm:text-2xl font-bold text-gray-800 truncate pr-4"></h3>
+                <button id="closeModal" class="text-gray-500 hover:text-gray-700 text-2xl sm:text-3xl flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100">✕</button>
+            </div>
+            
+            <!-- Konten Kuis -->
+            <div class="flex-1 overflow-hidden">
+                <div id="quizContent" class="w-full h-full min-h-[300px] sm:min-h-[400px] md:min-h-[500px] bg-gray-100">
+                    <!-- Konten kuis akan dimuat di sini -->
+                </div>
+            </div>
+            
+            <!-- Footer Modal -->
+            <div class="p-4 sm:p-6 border-t border-gray-200 bg-gray-50">
+                <div class="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+                    <div class="text-center text-sm text-gray-600">
+                        <p>Selesaikan kuis untuk mendapatkan XP! 🎯</p>
+                    </div>
+                    <button id="completeQuiz" class="w-full sm:w-auto bg-purple-500 text-white px-8 py-3 rounded-xl hover:bg-purple-600 transition-colors font-semibold text-lg shadow-lg">
+                        ✅ Selesai & Dapatkan XP
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentRole = 'teacher';
+        let currentStudent = null;
+        let students = JSON.parse(localStorage.getItem('students')) || [];
+        let quizzes = JSON.parse(localStorage.getItem('quizzes')) || [];
+
+        // Toggle antara mode guru dan siswa
+        document.getElementById('toggleRole').addEventListener('click', function() {
+            currentRole = currentRole === 'teacher' ? 'student' : 'teacher';
+            
+            if (currentRole === 'teacher') {
+                document.getElementById('currentRole').innerHTML = '👨‍🏫 Guru';
+                document.getElementById('teacherPanel').classList.remove('hidden');
+                document.getElementById('studentPanel').classList.add('hidden');
+                document.getElementById('studentNamePanel').classList.add('hidden');
+                document.getElementById('studentInfo').classList.add('hidden');
+                currentStudent = null;
+            } else {
+                document.getElementById('currentRole').innerHTML = '👨‍🎓 Siswa';
+                document.getElementById('teacherPanel').classList.add('hidden');
+                if (currentStudent) {
+                    document.getElementById('studentPanel').classList.remove('hidden');
+                    document.getElementById('studentNamePanel').classList.add('hidden');
+                    document.getElementById('studentInfo').classList.remove('hidden');
+                } else {
+                    document.getElementById('studentPanel').classList.add('hidden');
+                    document.getElementById('studentNamePanel').classList.remove('hidden');
+                    document.getElementById('studentInfo').classList.add('hidden');
+                }
+                updateLeaderboard();
+            }
+            updateDeleteButtons();
+        });
+
+        // Validasi input nama siswa
+        document.getElementById('studentNameInput').addEventListener('input', function() {
+            const name = this.value.trim();
+            const startBtn = document.getElementById('startPlaying');
+            
+            if (name.length >= 2) {
+                startBtn.disabled = false;
+                startBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                startBtn.classList.add('bg-purple-500', 'hover:bg-purple-600');
+            } else {
+                startBtn.disabled = true;
+                startBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                startBtn.classList.remove('bg-purple-500', 'hover:bg-purple-600');
+            }
+        });
+
+        // Mulai bermain sebagai siswa
+        document.getElementById('startPlaying').addEventListener('click', function() {
+            const name = document.getElementById('studentNameInput').value.trim();
+            
+            // Cari atau buat siswa baru
+            let student = students.find(s => s.name.toLowerCase() === name.toLowerCase());
+            if (!student) {
+                student = {
+                    id: Date.now(),
+                    name: name,
+                    xp: 0,
+                    joinDate: new Date().toISOString()
+                };
+                students.push(student);
+                localStorage.setItem('students', JSON.stringify(students));
+            }
+            
+            currentStudent = student;
+            document.getElementById('studentName').textContent = student.name;
+            document.getElementById('xpCount').textContent = student.xp;
+            
+            document.getElementById('studentNamePanel').classList.add('hidden');
+            document.getElementById('studentPanel').classList.remove('hidden');
+            document.getElementById('studentInfo').classList.remove('hidden');
+            
+            updateLeaderboard();
+        });
+
+        // Update leaderboard
+        function updateLeaderboard() {
+            const leaderboard = document.getElementById('leaderboard');
+            const sortedStudents = [...students].sort((a, b) => b.xp - a.xp);
+            
+            leaderboard.innerHTML = '';
+            
+            if (sortedStudents.length === 0) {
+                leaderboard.innerHTML = '<p class="text-gray-500 text-center py-8">Belum ada siswa yang bermain. Jadilah yang pertama! 🚀</p>';
+                return;
+            }
+            
+            sortedStudents.forEach((student, index) => {
+                const medals = ['🥇', '🥈', '🥉'];
+                const medal = medals[index] || '🏅';
+                const colors = ['border-yellow-400 bg-yellow-50', 'border-gray-400 bg-gray-50', 'border-orange-400 bg-orange-50'];
+                const color = colors[index] || 'border-blue-400 bg-blue-50';
+                
+                const item = document.createElement('div');
+                item.className = `leaderboard-item flex items-center justify-between p-4 rounded-lg border-l-4 ${color}`;
+                item.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl">${medal}</span>
+                        <div>
+                            <p class="font-semibold text-gray-800">${student.name} ${student.id === currentStudent?.id ? '(Kamu)' : ''}</p>
+                            <p class="text-sm text-gray-600">Bergabung: ${new Date(student.joinDate).toLocaleDateString('id-ID')}</p>
+                        </div>
+                    </div>
+                    <span class="text-xl font-bold text-gray-700">${student.xp} XP</span>
+                `;
+                leaderboard.appendChild(item);
+            });
+        }
+
+        // Validasi form guru
+        function validateForm() {
+            const title = document.getElementById('quizTitle').value.trim();
+            const grade = document.getElementById('quizGrade').value;
+            const objective = document.getElementById('learningObjective').value.trim();
+            const difficulty = document.getElementById('difficulty').value;
+            const embedCode = document.getElementById('embedCode').value.trim();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (title && grade && objective && difficulty && embedCode) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                submitBtn.classList.add('bg-purple-500', 'hover:bg-purple-600');
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                submitBtn.classList.remove('bg-purple-500', 'hover:bg-purple-600');
+            }
+        }
+
+        // Event listeners untuk validasi
+        ['quizTitle', 'quizGrade', 'learningObjective', 'difficulty', 'embedCode'].forEach(id => {
+            document.getElementById(id).addEventListener('input', validateForm);
+            document.getElementById(id).addEventListener('change', validateForm);
+        });
+
+        // Submit form
+        document.getElementById('quizForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('quizTitle').value.trim();
+            const grade = document.getElementById('quizGrade').value;
+            const objective = document.getElementById('learningObjective').value.trim();
+            const difficulty = document.getElementById('difficulty').value;
+            const embedCode = document.getElementById('embedCode').value.trim();
+            
+            // Tentukan platform berdasarkan embed code
+            let platform = 'Custom HTML';
+            let icon = '🎮';
+            let color = 'purple';
+            
+            if (embedCode.includes('scratch.mit.edu')) {
+                platform = 'Scratch Game';
+                icon = '🐱';
+                color = 'orange';
+            } else if (embedCode.includes('wordwall.net')) {
+                platform = 'Wordwall Quiz';
+                icon = '🎯';
+                color = 'blue';
+            } else if (embedCode.includes('canva.com')) {
+                platform = 'Canva Interactive';
+                icon = '🎨';
+                color = 'pink';
+            } else if (embedCode.includes('forms.gle') || embedCode.includes('google.com/forms')) {
+                platform = 'Google Form';
+                icon = '📝';
+                color = 'green';
+            } else if (embedCode.includes('quizizz.com')) {
+                platform = 'Quizizz';
+                icon = '⚡';
+                color = 'purple';
+            }
+            
+            // Tentukan XP berdasarkan kesulitan
+            let xp = 50;
+            if (difficulty === 'mudah') xp = 50;
+            else if (difficulty === 'sedang') xp = 75;
+            else if (difficulty === 'sulit') xp = 100;
+            
+            const quiz = {
+                id: Date.now(),
+                title,
+                grade,
+                objective,
+                difficulty,
+                embedCode,
+                platform,
+                icon,
+                color,
+                xp
+            };
+            
+            quizzes.push(quiz);
+            localStorage.setItem('quizzes', JSON.stringify(quizzes));
+            renderQuizzes();
+            
+            // Reset form
+            document.getElementById('quizForm').reset();
+            validateForm();
+            
+            alert('Kuis berhasil ditambahkan! 🎉');
+        });
+
+        // Render daftar kuis
+        function renderQuizzes() {
+            const quizList = document.getElementById('quizList');
+            
+            // Hapus semua kuis yang ditambahkan secara dinamis
+            const dynamicQuizzes = quizList.querySelectorAll('.dynamic-quiz');
+            dynamicQuizzes.forEach(quiz => quiz.remove());
+            
+            quizzes.forEach(quiz => {
+                const colorClasses = {
+                    purple: 'from-purple-400 to-purple-600',
+                    blue: 'from-blue-400 to-blue-600',
+                    green: 'from-green-400 to-green-600',
+                    orange: 'from-orange-400 to-orange-600',
+                    pink: 'from-pink-400 to-pink-600'
+                };
+                
+                const buttonColors = {
+                    purple: 'bg-purple-500 hover:bg-purple-600',
+                    blue: 'bg-blue-500 hover:bg-blue-600',
+                    green: 'bg-green-500 hover:bg-green-600',
+                    orange: 'bg-orange-500 hover:bg-orange-600',
+                    pink: 'bg-pink-500 hover:bg-pink-600'
+                };
+
+                const gradeColors = {
+                    purple: 'bg-purple-100 text-purple-800',
+                    blue: 'bg-blue-100 text-blue-800',
+                    green: 'bg-green-100 text-green-800',
+                    orange: 'bg-orange-100 text-orange-800',
+                    pink: 'bg-pink-100 text-pink-800'
+                };
+
+                const difficultyLabels = {
+                    mudah: '🟢 MUDAH',
+                    sedang: '🟡 SEDANG',
+                    sulit: '🔴 SULIT'
+                };
+
+                const difficultyClasses = {
+                    mudah: 'difficulty-easy',
+                    sedang: 'difficulty-medium',
+                    sulit: 'difficulty-hard'
+                };
+                
+                const quizCard = document.createElement('div');
+                quizCard.className = 'quiz-card dynamic-quiz card-hover bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm';
+                quizCard.innerHTML = `
+                    <div class="relative p-6 bg-gradient-to-br ${colorClasses[quiz.color]} text-white text-center">
+                        <span class="text-4xl mb-2 block">${quiz.icon}</span>
+                        <div class="absolute top-2 right-2">
+                            <span class="${difficultyClasses[quiz.difficulty]} text-white px-2 py-1 rounded-full text-xs font-bold">${difficultyLabels[quiz.difficulty]}</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="${gradeColors[quiz.color]} px-2 py-1 rounded-full text-xs font-semibold">${quiz.grade}</span>
+                            <span class="text-xs text-gray-500">${quiz.platform}</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-800 mb-2">${quiz.title}</h3>
+                        <p class="text-gray-600 text-sm mb-4">${quiz.objective}</p>
+                        <div class="space-y-2">
+                            <button class="play-quiz w-full ${buttonColors[quiz.color]} text-white py-2 rounded-lg transition-colors font-semibold" data-xp="${quiz.xp}" data-title="${quiz.title}" data-embed="${encodeURIComponent(quiz.embedCode)}">
+                                🎮 Main Sekarang
+                            </button>
+                            <button class="delete-quiz ${currentRole === 'teacher' ? '' : 'hidden'} w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition-colors font-semibold text-sm" data-quiz-id="${quiz.id}" data-quiz-title="${quiz.title}">
+                                🗑️ Hapus Kuis
+                            </button>
+                        </div>
+                    </div>
+                `;
+                quizList.appendChild(quizCard);
+            });
+        }
+
+        // Event delegation untuk tombol play quiz dan hapus kuis
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('delete-quiz')) {
+                const quizId = parseInt(e.target.dataset.quizId);
+                const quizTitle = e.target.dataset.quizTitle;
+                
+                // Konfirmasi hapus dengan modal custom
+                showDeleteConfirmation(quizId, quizTitle);
+            } else if (e.target.classList.contains('play-quiz')) {
+                if (currentRole === 'student' && currentStudent) {
+                    const xp = parseInt(e.target.dataset.xp);
+                    const title = e.target.dataset.title;
+                    const embedCode = decodeURIComponent(e.target.dataset.embed);
+                    
+                    // Tampilkan modal
+                    document.getElementById('modalTitle').textContent = title;
+                    document.getElementById('quizContent').innerHTML = embedCode;
+                    document.getElementById('quizModal').classList.remove('hidden');
+                    
+                    // Simpan XP untuk nanti
+                    document.getElementById('completeQuiz').dataset.xp = xp;
+                } else if (currentRole === 'student' && !currentStudent) {
+                    alert('Silakan masukkan nama kamu terlebih dahulu! 👨‍🎓');
+                } else {
+                    alert('Silakan ganti ke mode Siswa untuk bermain kuis! 👨‍🎓');
+                }
+            }
+        });
+
+        // Close modal
+        document.getElementById('closeModal').addEventListener('click', function() {
+            document.getElementById('quizModal').classList.add('hidden');
+        });
+
+        // Complete quiz dan dapatkan XP
+        document.getElementById('completeQuiz').addEventListener('click', function() {
+            const xp = parseInt(this.dataset.xp);
+            currentStudent.xp += xp;
+            
+            // Update localStorage
+            const studentIndex = students.findIndex(s => s.id === currentStudent.id);
+            students[studentIndex] = currentStudent;
+            localStorage.setItem('students', JSON.stringify(students));
+            
+            document.getElementById('xpCount').textContent = currentStudent.xp;
+            document.getElementById('xpCount').classList.add('xp-animation');
+            
+            setTimeout(() => {
+                document.getElementById('xpCount').classList.remove('xp-animation');
+            }, 600);
+            
+            document.getElementById('quizModal').classList.add('hidden');
+            updateLeaderboard();
+            
+            // Tampilkan notifikasi XP
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            notification.innerHTML = `🎉 Selamat ${currentStudent.name}! Kamu mendapat ${xp} XP!`;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        });
+
+        // Fungsi untuk menampilkan konfirmasi hapus
+        function showDeleteConfirmation(quizId, quizTitle) {
+            document.getElementById('deleteQuizTitle').textContent = quizTitle;
+            document.getElementById('deleteModal').classList.remove('hidden');
+            
+            // Simpan ID kuis yang akan dihapus
+            document.getElementById('confirmDelete').dataset.quizId = quizId;
+        }
+
+        // Event listener untuk modal konfirmasi hapus
+        document.getElementById('cancelDelete').addEventListener('click', function() {
+            document.getElementById('deleteModal').classList.add('hidden');
+        });
+
+        document.getElementById('confirmDelete').addEventListener('click', function() {
+            const quizId = parseInt(this.dataset.quizId);
+            
+            // Hapus kuis dari array
+            quizzes = quizzes.filter(quiz => quiz.id !== quizId);
+            
+            // Update localStorage
+            localStorage.setItem('quizzes', JSON.stringify(quizzes));
+            
+            // Render ulang daftar kuis
+            renderQuizzes();
+            
+            // Tutup modal
+            document.getElementById('deleteModal').classList.add('hidden');
+            
+            // Tampilkan notifikasi
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            notification.innerHTML = '🗑️ Kuis berhasil dihapus!';
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        });
+
+        // Update tampilan tombol hapus berdasarkan role
+        function updateDeleteButtons() {
+            const deleteButtons = document.querySelectorAll('.delete-quiz');
+            deleteButtons.forEach(button => {
+                if (currentRole === 'teacher') {
+                    button.classList.remove('hidden');
+                } else {
+                    button.classList.add('hidden');
+                }
+            });
+        }
+
+        // Inisialisasi
+        validateForm();
+        renderQuizzes();
+        updateDeleteButtons();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98f9eb5e84d5fcf7',t:'MTc2MDY0MjQ4OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
