@@ -609,37 +609,54 @@
         // Inisialisasi
         validateForm();
     </script>
-   
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98f941a196195c30',t:'MTc2MDYzNTUzNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98f941a196195c30',t:'MTc2MDYzNTUzNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+
 
 <script>
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzsqKJlX8fVhv4hm7P5TakrKRn9fR-Yl_wyKU9jXHYBKVyWyXcLfuQg7Cu3nr4TJkPeJQ/exec'; // ganti dengan URL-mu
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxMMsWTopCJPEo36TTy5Er4hR8dEuh3L8uRgffCNyXdI-fkj7V2kO09dcSsW0A1L5x4/exec"; // contoh: https://script.google.com/macros/s/AKfycbxyz123/exec
 
-// kirim data kuis ke Google Sheet
-async function sendQuiz(quiz) {
-  const res = await fetch(WEB_APP_URL, {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({action: 'addQuiz', quiz})
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("formTambahKuis");
+
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+
+    // Ambil semua data dari form
+    const data = {
+      judul: form.judul.value.trim(),
+      fase: form.fase.value.trim(),
+      tujuan: form.tujuan.value.trim(),
+      kesulitan: form.kesulitan.value,
+      platform: form.platform.value.trim(),
+      xp: form.xp.value.trim(),
+      embed: btoa(unescape(encodeURIComponent(form.embed.value))).substring(0, 150) // base64 pendek
+    };
+
+    if (!data.judul) return alert("❗ Judul wajib diisi");
+
+    // Buat nama callback unik agar tidak bentrok
+    const callbackName = "jsonpCallback_" + Date.now();
+    window[callbackName] = function(response) {
+      alert(response.message || "Kuis berhasil disimpan!");
+      delete window[callbackName];
+      form.reset();
+    };
+
+    // Kirim ke Apps Script via JSONP
+    const script = document.createElement("script");
+    script.src = `${SCRIPT_URL}?action=addQuiz&callback=${callbackName}`
+      + `&judul=${encodeURIComponent(data.judul)}`
+      + `&fase=${encodeURIComponent(data.fase)}`
+      + `&tujuan=${encodeURIComponent(data.tujuan)}`
+      + `&kesulitan=${encodeURIComponent(data.kesulitan)}`
+      + `&platform=${encodeURIComponent(data.platform)}`
+      + `&xp=${encodeURIComponent(data.xp)}`
+      + `&embed=${encodeURIComponent(data.embed)}`;
+    document.body.appendChild(script);
   });
-  const result = await res.json();
-  console.log(result);
-}
-
-// contoh pemanggilan
-sendQuiz({
-  id: Date.now(),
-  title: 'Kuis Logika',
-  grade: '8',
-  objective: 'Berpikir Komputasional',
-  difficulty: 'Sedang',
-  xp: 50,
-  embedCode: '',
-  platform: 'Quizizz',
-  icon: 'quiz.png',
-  color: '#4CAF50'
 });
 </script>
 
-</html>
 
+</body>
+</html>
