@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Kuis Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 25%, #fecfef 75%, #ffc3a0 100%);
+            min-height: 100vh;
+        }
+        
+        /* Education Theme Colors */
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .gradient-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="30" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="70" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="80" r="2.5" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="60" r="1.5" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
+            animation: float 20s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        /* Card Animations */
+        .card-hover {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card-hover::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        
+        .card-hover:hover::before {
+            left: 100%;
+        }
+        
+        /* XP Animation */
+        .xp-animation {
+            animation: xpBounce 0.8s ease-in-out;
+        }
+        
+        @keyframes xpBounce {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.2) rotate(-5deg); }
+            50% { transform: scale(1.3) rotate(5deg); }
+            75% { transform: scale(1.1) rotate(-2deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+        
+        /* Difficulty Badges */
+        .difficulty-easy { 
+            background: linear-gradient(135deg, #10b981, #34d399);
+            animation: pulse-green 2s infinite;
+        }
+        .difficulty-medium { 
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            animation: pulse-yellow 2s infinite;
+        }
+        .difficulty-hard { 
+            background: linear-gradient(135deg, #ef4444, #f87171);
+            animation: pulse-red 2s infinite;
+        }
+        
+        @keyframes pulse-green {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+        }
+        
+        @keyframes pulse-yellow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+        }
+        
+        @keyframes pulse-red {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+        }
+        
+        /* Leaderboard Animation */
+        .leaderboard-item {
+            animation: slideInBounce 0.6s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        @keyframes slideInBounce {
+            0% { 
+                opacity: 0; 
+                transform: translateX(-50px) scale(0.8); 
+            }
+            60% { 
+                opacity: 1; 
+                transform: translateX(10px) scale(1.05); 
+            }
+            100% { 
+                opacity: 1; 
+                transform: translateX(0) scale(1); 
+            }
+        }
+        
+        /* Button Animations */
+        .btn-animated {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-animated::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .btn-animated:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        /* Mode Toggle Buttons */
+        .mode-toggle {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .mode-toggle.active {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            border-color: rgba(255, 255, 255, 0.8);
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(240, 147, 251, 0.4);
+        }
+        
+        .mode-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Educational Icons Animation */
+        .edu-icon {
+            animation: float-icon 3s ease-in-out infinite;
+        }
+        
+        @keyframes float-icon {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+        
+        /* Quiz Cards Enhanced */
+        .quiz-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Notification Animation */
+        .notification-slide {
+            animation: slideInRight 0.5s ease-out;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        /* Loading Animation */
+        .loading-dots {
+            display: inline-block;
+        }
+        
+        .loading-dots::after {
+            content: '';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+        
+        /* Educational Background Pattern */
+        .edu-pattern {
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(255, 107, 107, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(72, 187, 120, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 25%, rgba(66, 153, 225, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 25% 75%, rgba(236, 201, 75, 0.1) 0%, transparent 50%);
+        }
+        
+        /* Responsive styles untuk mobile */
+        @media (max-width: 640px) {
+            .quiz-embed {
+                height: 300px;
+            }
+            
+            #quizContent iframe {
+                width: 100% !important;
+                height: 100% !important;
+                min-height: 300px;
+            }
+            
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .mode-toggle {
+                padding: 0.75rem 1.5rem;
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (min-width: 641px) and (max-width: 1024px) {
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body class="edu-pattern min-h-screen">
+    <header class="gradient-bg text-white shadow-lg relative">
+        <div class="container mx-auto px-4 sm:px-6 py-6 sm:py-8 relative z-10">
+            <div class="text-center mb-8">
+                <div class="flex justify-center items-center mb-4">
+                    <span class="text-6xl sm:text-7xl edu-icon mr-4">📚</span>
+                    <div>
+                        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold mb-2 bg-gradient-to-r from-white to-yellow-200 bg-clip-text text-transparent">EduQuiz Interactive</h1>
+                        <p class="text-lg sm:text-xl text-white text-opacity-90">Platform Pembelajaran Gamifikasi Terdepan</p>
+                    </div>
+                    <span class="text-6xl sm:text-7xl edu-icon ml-4">🎓</span>
+                </div>
+                
+                <!-- Floating Educational Icons -->
+                <div class="absolute top-4 left-4 text-4xl edu-icon opacity-30">🔬</div>
+                <div class="absolute top-8 right-8 text-3xl edu-icon opacity-30" style="animation-delay: 1s;">📐</div>
+                <div class="absolute bottom-4 left-8 text-3xl edu-icon opacity-30" style="animation-delay: 2s;">🎨</div>
+                <div class="absolute bottom-8 right-4 text-4xl edu-icon opacity-30" style="animation-delay: 0.5s;">🌍</div>
+            </div>
+            
+            <!-- Mode Selection Buttons -->
+            <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6 mb-6">
+                <button id="teacherModeBtn" class="mode-toggle active text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg">
+                    <span class="block text-sm text-white text-opacity-80 mb-1">Mode:</span>
+                    <span class="text-2xl">👨‍🏫 Guru</span>
+                </button>
+                
+                <button id="studentModeBtn" class="mode-toggle text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg">
+                    <span class="block text-sm text-white text-opacity-80 mb-1">Mode:</span>
+                    <span class="text-2xl">👨‍🎓 Siswa</span>
+                </button>
+            </div>
+            
+            <!-- Student Info Display -->
+            <div id="studentInfo" class="hidden flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                <div class="bg-white bg-opacity-20 px-6 py-3 rounded-xl backdrop-blur-sm border border-white border-opacity-30">
+                    <span class="text-lg">Halo, <span id="studentName" class="font-bold text-yellow-300"></span>! 👋</span>
+                </div>
+                <div class="bg-gradient-to-r from-yellow-400 to-orange-400 text-purple-800 px-6 py-3 rounded-xl font-bold text-lg shadow-lg border-2 border-white border-opacity-30">
+                    <span class="block text-xs text-purple-600">Total XP</span>
+                    <span id="xpCount" class="text-2xl">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <!-- Panel Input Nama Siswa -->
+        <div id="studentNamePanel" class="hidden mb-8">
+            <div class="quiz-card rounded-xl shadow-lg p-6 text-center">
+                <div class="text-6xl mb-4 edu-icon">🎓</div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">👋 Selamat Datang, Siswa!</h2>
+                <p class="text-gray-600 mb-6">Masukkan nama kamu untuk mulai bermain dan mengumpulkan XP</p>
+                <div class="max-w-md mx-auto">
+                    <input type="text" id="studentNameInput" class="w-full px-4 py-3 border-2 border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-center text-lg transition-all" placeholder="Masukkan nama kamu...">
+                    <button id="startPlaying" class="btn-animated w-full mt-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 px-6 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg" disabled>
+                        🚀 Mulai Bermain!
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Akses Guru -->
+        <div id="teacherAccessPanel" class="hidden mb-8">
+            <div class="quiz-card rounded-xl shadow-lg p-6 text-center">
+                <div class="text-6xl mb-4 edu-icon">🔐</div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">🔒 Akses Mode Guru</h2>
+                <p class="text-gray-600 mb-6">Masukkan kode akses guru untuk melanjutkan</p>
+                <div class="max-w-md mx-auto">
+                    <input type="password" id="teacherAccessCode" class="w-full px-4 py-3 border-2 border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-lg transition-all font-mono" placeholder="Masukkan kode akses...">
+                    <button id="verifyTeacherAccess" class="btn-animated w-full mt-4 bg-gradient-to-r from-blue-500 to-indigo-500 text-white py-3 px-6 rounded-lg font-semibold hover:from-blue-600 hover:to-indigo-600 transition-all shadow-lg" disabled>
+                        🔓 Verifikasi Akses
+                    </button>
+                    <p class="text-xs text-gray-500 mt-3">
+                        <!-- Kode Akses Guru: GURU2024EDU -->
+                        Hubungi administrator untuk mendapatkan kode akses
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Guru -->
+        <div id="teacherPanel" class="mb-8">
+            <div class="quiz-card rounded-xl shadow-lg p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">➕ Tambah Kuis/Game Baru</h2>
+                    <button id="logoutTeacher" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors text-sm font-semibold">
+                        🚪 Keluar Mode Guru
+                    </button>
+                </div>
+                
+                <form id="quizForm" class="space-y-6">
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="quizTitle" class="block text-sm font-medium text-gray-700 mb-2">Judul Materi Kuis/Game</label>
+                            <input type="text" id="quizTitle" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Contoh: Matematika Dasar">
+                        </div>
+                        <div>
+                            <label for="quizGrade" class="block text-sm font-medium text-gray-700 mb-2">Fase/Kelas</label>
+                            <select id="quizGrade" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <option value="">Pilih Fase/Kelas</option>
+                                <option value="Fase A (Kelas 1-2)">Fase A (Kelas 1-2)</option>
+                                <option value="Fase B (Kelas 3-4)">Fase B (Kelas 3-4)</option>
+                                <option value="Fase C (Kelas 5-6)">Fase C (Kelas 5-6)</option>
+                                <option value="Fase D (Kelas 7-9)">Fase D (Kelas 7-9)</option>
+                                <option value="Fase E (Kelas 10)">Fase E (Kelas 10)</option>
+                                <option value="Fase F (Kelas 11-12)">Fase F (Kelas 11-12)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="learningObjective" class="block text-sm font-medium text-gray-700 mb-2">Tujuan Pembelajaran</label>
+                        <textarea id="learningObjective" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Siswa dapat memahami dan menerapkan..."></textarea>
+                    </div>
+
+                    <div>
+                        <label for="difficulty" class="block text-sm font-medium text-gray-700 mb-2">Tingkat Kesulitan</label>
+                        <select id="difficulty" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <option value="">Pilih Tingkat Kesulitan</option>
+                            <option value="mudah">🟢 Mudah (50 XP)</option>
+                            <option value="sedang">🟡 Sedang (75 XP)</option>
+                            <option value="sulit">🔴 Sulit (100 XP)</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="embedCode" class="block text-sm font-medium text-gray-700 mb-2">Kode Embed HTML Kuis</label>
+                        <textarea id="embedCode" rows="6" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono text-sm" placeholder='Contoh: <iframe src="https://wordwall.net/embed/..." width="100%" height="400"></iframe>'></textarea>
+                        <p class="text-sm text-gray-500 mt-1">Mendukung: Scratch, Wordwall, Canva, Google Form, Quizizz (paste kode embed HTML lengkap)</p>
+                    </div>
+                    
+                    <button type="submit" id="submitBtn" class="w-full bg-gray-400 text-white py-3 px-6 rounded-lg font-semibold cursor-not-allowed" disabled>
+                        Tambah Kuis/Game
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Panel Siswa - Leaderboard -->
+        <div id="studentPanel" class="hidden mb-8">
+            <div class="quiz-card rounded-xl shadow-lg p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">🏆 Leaderboard</h2>
+                <div id="leaderboard" class="space-y-3">
+                    <!-- Leaderboard akan diisi secara dinamis -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Guru - Leaderboard Management -->
+        <div id="teacherLeaderboardPanel" class="hidden mb-8">
+            <div class="quiz-card rounded-xl shadow-lg p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">🏆 Kelola Leaderboard Siswa</h2>
+                    <div class="flex space-x-2">
+                        <button id="refreshLeaderboard" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm font-semibold btn-animated">
+                            🔄 Refresh
+                        </button>
+                        <button id="resetLeaderboard" class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors text-sm font-semibold btn-animated">
+                            🗑️ Reset Semua
+                        </button>
+                    </div>
+                </div>
+                <div id="teacherLeaderboard" class="space-y-3">
+                    <!-- Leaderboard untuk guru akan diisi secara dinamis -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Daftar Kuis/Game -->
+        <div class="quiz-card rounded-xl shadow-lg p-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">📚 Kuis/Game Tersedia</h2>
+            <!-- Filter untuk mode siswa -->
+            <div id="studentFilters" class="hidden mb-6 bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-xl border-2 border-purple-200">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">🔍 Filter Kuis</h3>
+                <div class="grid md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="filterGrade" class="block text-sm font-medium text-gray-700 mb-2">Fase/Kelas</label>
+                        <select id="filterGrade" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm">
+                            <option value="">Semua Fase/Kelas</option>
+                            <option value="Fase A (Kelas 1-2)">Fase A (Kelas 1-2)</option>
+                            <option value="Fase B (Kelas 3-4)">Fase B (Kelas 3-4)</option>
+                            <option value="Fase C (Kelas 5-6)">Fase C (Kelas 5-6)</option>
+                            <option value="Fase D (Kelas 7-9)">Fase D (Kelas 7-9)</option>
+                            <option value="Fase E (Kelas 10)">Fase E (Kelas 10)</option>
+                            <option value="Fase F (Kelas 11-12)">Fase F (Kelas 11-12)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="filterDifficulty" class="block text-sm font-medium text-gray-700 mb-2">Tingkat Kesulitan</label>
+                        <select id="filterDifficulty" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm">
+                            <option value="">Semua Tingkat</option>
+                            <option value="mudah">🟢 Mudah</option>
+                            <option value="sedang">🟡 Sedang</option>
+                            <option value="sulit">🔴 Sulit</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="searchQuiz" class="block text-sm font-medium text-gray-700 mb-2">Cari Materi</label>
+                        <input type="text" id="searchQuiz" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm" placeholder="Ketik nama materi...">
+                    </div>
+                </div>
+                <div class="mt-4 flex justify-end">
+                    <button id="resetFilters" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors text-sm font-semibold">
+                        🔄 Reset Filter
+                    </button>
+                </div>
+            </div>
+
+            <div id="quizList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Kuis akan ditampilkan di sini -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal konfirmasi hapus -->
+    <div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="quiz-card p-6 max-w-md w-full mx-4">
+            <div class="text-center">
+                <div class="text-6xl mb-4 edu-icon">🗑️</div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Hapus Kuis?</h3>
+                <p class="text-gray-600 mb-6">Apakah kamu yakin ingin menghapus kuis "<span id="deleteQuizTitle" class="font-semibold"></span>"? Tindakan ini tidak dapat dibatalkan.</p>
+                <div class="flex space-x-3">
+                    <button id="cancelDelete" class="flex-1 bg-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-400 transition-colors font-semibold btn-animated">
+                        Batal
+                    </button>
+                    <button id="confirmDelete" class="flex-1 bg-red-500 text-white py-3 px-4 rounded-lg hover:bg-red-600 transition-colors font-semibold btn-animated">
+                        Ya, Hapus
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal konfirmasi reset leaderboard -->
+    <div id="resetLeaderboardModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="quiz-card p-6 max-w-md w-full mx-4">
+            <div class="text-center">
+                <div class="text-6xl mb-4 edu-icon">⚠️</div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Reset Leaderboard?</h3>
+                <p class="text-gray-600 mb-6">Apakah kamu yakin ingin menghapus semua data siswa dan XP? Tindakan ini akan menghapus seluruh leaderboard dan tidak dapat dibatalkan.</p>
+                <div class="flex space-x-3">
+                    <button id="cancelResetLeaderboard" class="flex-1 bg-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-400 transition-colors font-semibold btn-animated">
+                        Batal
+                    </button>
+                    <button id="confirmResetLeaderboard" class="flex-1 bg-orange-500 text-white py-3 px-4 rounded-lg hover:bg-orange-600 transition-colors font-semibold btn-animated">
+                        Ya, Reset Semua
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal untuk menampilkan kuis -->
+    <div id="quizModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+        <div class="quiz-card w-full max-w-6xl max-h-[95vh] flex flex-col">
+            <!-- Header Modal -->
+            <div class="flex justify-between items-center p-4 sm:p-6 border-b border-gray-200 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-t-xl">
+                <h3 id="modalTitle" class="text-lg sm:text-2xl font-bold truncate pr-4"></h3>
+                <button id="closeModal" class="text-white hover:text-gray-200 text-2xl sm:text-3xl flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full hover:bg-white hover:bg-opacity-20 transition-all">✕</button>
+            </div>
+            
+            <!-- Konten Kuis -->
+            <div class="flex-1 overflow-hidden">
+                <div id="quizContent" class="w-full h-full min-h-[300px] sm:min-h-[400px] md:min-h-[500px] bg-gradient-to-br from-blue-50 to-purple-50">
+                    <!-- Konten kuis akan dimuat di sini -->
+                </div>
+            </div>
+            
+            <!-- Footer Modal -->
+            <div class="p-4 sm:p-6 border-t border-gray-200 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-b-xl">
+                <div class="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+                    <div class="text-center text-sm text-gray-600">
+                        <p class="flex items-center justify-center"><span class="text-lg mr-2">🎯</span>Selesaikan kuis untuk mendapatkan XP!</p>
+                    </div>
+                    <button id="completeQuiz" class="btn-animated w-full sm:w-auto bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-3 rounded-xl hover:from-green-600 hover:to-emerald-600 transition-all font-semibold text-lg shadow-lg">
+                        ✅ Selesai & Dapatkan XP
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentRole = 'teacher';
+        let currentStudent = null;
+        let students = JSON.parse(localStorage.getItem('students')) || [];
+        let quizzes = JSON.parse(localStorage.getItem('quizzes')) || [];
+        let isTeacherAuthenticated = false;
+        
+        // Kode akses guru (untuk development - dalam produksi sebaiknya di server)
+        const TEACHER_ACCESS_CODE = 'GURU2024EDU';
+
+        // Mode toggle handlers
+        document.getElementById('teacherModeBtn').addEventListener('click', function() {
+            if (!isTeacherAuthenticated) {
+                showTeacherAccessPanel();
+            } else {
+                switchToTeacherMode();
+            }
+        });
+
+        document.getElementById('studentModeBtn').addEventListener('click', function() {
+            switchToStudentMode();
+        });
+
+        function showTeacherAccessPanel() {
+            document.getElementById('teacherAccessPanel').classList.remove('hidden');
+            document.getElementById('teacherPanel').classList.add('hidden');
+            document.getElementById('teacherLeaderboardPanel').classList.add('hidden');
+            document.getElementById('studentPanel').classList.add('hidden');
+            document.getElementById('studentNamePanel').classList.add('hidden');
+            document.getElementById('studentInfo').classList.add('hidden');
+            document.getElementById('studentFilters').classList.add('hidden');
+            
+            // Update button states
+            document.getElementById('teacherModeBtn').classList.remove('active');
+            document.getElementById('studentModeBtn').classList.remove('active');
+        }
+
+        function switchToTeacherMode() {
+            currentRole = 'teacher';
+            currentStudent = null;
+            
+            document.getElementById('teacherAccessPanel').classList.add('hidden');
+            document.getElementById('teacherPanel').classList.remove('hidden');
+            document.getElementById('teacherLeaderboardPanel').classList.remove('hidden');
+            document.getElementById('studentPanel').classList.add('hidden');
+            document.getElementById('studentNamePanel').classList.add('hidden');
+            document.getElementById('studentInfo').classList.add('hidden');
+            document.getElementById('studentFilters').classList.add('hidden');
+            
+            // Update button states
+            document.getElementById('teacherModeBtn').classList.add('active');
+            document.getElementById('studentModeBtn').classList.remove('active');
+            
+            updateDeleteButtons();
+            updateTeacherLeaderboard();
+        }
+
+        function switchToStudentMode() {
+            currentRole = 'student';
+            
+            document.getElementById('teacherAccessPanel').classList.add('hidden');
+            document.getElementById('teacherPanel').classList.add('hidden');
+            document.getElementById('teacherLeaderboardPanel').classList.add('hidden');
+            document.getElementById('studentFilters').classList.remove('hidden');
+            
+            if (currentStudent) {
+                document.getElementById('studentPanel').classList.remove('hidden');
+                document.getElementById('studentNamePanel').classList.add('hidden');
+                document.getElementById('studentInfo').classList.remove('hidden');
+            } else {
+                document.getElementById('studentPanel').classList.add('hidden');
+                document.getElementById('studentNamePanel').classList.remove('hidden');
+                document.getElementById('studentInfo').classList.add('hidden');
+            }
+            
+            // Update button states
+            document.getElementById('teacherModeBtn').classList.remove('active');
+            document.getElementById('studentModeBtn').classList.add('active');
+            
+            updateDeleteButtons();
+            updateLeaderboard();
+            applyFilters();
+        }
+
+        // Teacher access validation
+        document.getElementById('teacherAccessCode').addEventListener('input', function() {
+            const code = this.value.trim();
+            const verifyBtn = document.getElementById('verifyTeacherAccess');
+            
+            if (code.length >= 3) {
+                verifyBtn.disabled = false;
+                verifyBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                verifyBtn.classList.add('bg-gradient-to-r', 'from-blue-500', 'to-indigo-500');
+            } else {
+                verifyBtn.disabled = true;
+                verifyBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                verifyBtn.classList.remove('bg-gradient-to-r', 'from-blue-500', 'to-indigo-500');
+            }
+        });
+
+        document.getElementById('verifyTeacherAccess').addEventListener('click', function() {
+            const code = document.getElementById('teacherAccessCode').value.trim();
+            
+            if (code === TEACHER_ACCESS_CODE) {
+                isTeacherAuthenticated = true;
+                switchToTeacherMode();
+                showNotification('✅ Akses guru berhasil! Selamat datang!', 'success');
+                document.getElementById('teacherAccessCode').value = '';
+            } else {
+                showNotification('❌ Kode akses salah! Silakan coba lagi.', 'error');
+                document.getElementById('teacherAccessCode').value = '';
+                document.getElementById('teacherAccessCode').focus();
+            }
+        });
+
+        // Logout teacher
+        document.getElementById('logoutTeacher').addEventListener('click', function() {
+            isTeacherAuthenticated = false;
+            switchToStudentMode();
+            showNotification('👋 Berhasil keluar dari mode guru', 'info');
+        });
+            
+            if (currentRole === 'teacher') {
+                document.getElementById('currentRole').innerHTML = '👨‍🏫 Guru';
+                document.getElementById('teacherPanel').classList.remove('hidden');
+                document.getElementById('studentPanel').classList.add('hidden');
+                document.getElementById('studentNamePanel').classList.add('hidden');
+                document.getElementById('studentInfo').classList.add('hidden');
+                document.getElementById('studentFilters').classList.add('hidden');
+                currentStudent = null;
+            } else {
+                document.getElementById('currentRole').innerHTML = '👨‍🎓 Siswa';
+                document.getElementById('teacherPanel').classList.add('hidden');
+                document.getElementById('studentFilters').classList.remove('hidden');
+                if (currentStudent) {
+                    document.getElementById('studentPanel').classList.remove('hidden');
+                    document.getElementById('studentNamePanel').classList.add('hidden');
+                    document.getElementById('studentInfo').classList.remove('hidden');
+                } else {
+                    document.getElementById('studentPanel').classList.add('hidden');
+                    document.getElementById('studentNamePanel').classList.remove('hidden');
+                    document.getElementById('studentInfo').classList.add('hidden');
+                }
+                updateLeaderboard();
+            }
+            updateDeleteButtons();
+            applyFilters();
+        });
+
+        // Validasi input nama siswa
+        document.getElementById('studentNameInput').addEventListener('input', function() {
+            const name = this.value.trim();
+            const startBtn = document.getElementById('startPlaying');
+            
+            if (name.length >= 2) {
+                startBtn.disabled = false;
+                startBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                startBtn.classList.add('bg-purple-500', 'hover:bg-purple-600');
+            } else {
+                startBtn.disabled = true;
+                startBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                startBtn.classList.remove('bg-purple-500', 'hover:bg-purple-600');
+            }
+        });
+
+        // Mulai bermain sebagai siswa
+        document.getElementById('startPlaying').addEventListener('click', function() {
+            const name = document.getElementById('studentNameInput').value.trim();
+            
+            // Cari atau buat siswa baru
+            let student = students.find(s => s.name.toLowerCase() === name.toLowerCase());
+            if (!student) {
+                student = {
+                    id: Date.now(),
+                    name: name,
+                    xp: 0,
+                    joinDate: new Date().toISOString()
+                };
+                students.push(student);
+                localStorage.setItem('students', JSON.stringify(students));
+            }
+            
+            currentStudent = student;
+            document.getElementById('studentName').textContent = student.name;
+            document.getElementById('xpCount').textContent = student.xp;
+            
+            document.getElementById('studentNamePanel').classList.add('hidden');
+            document.getElementById('studentPanel').classList.remove('hidden');
+            document.getElementById('studentInfo').classList.remove('hidden');
+            
+            updateLeaderboard();
+        });
+
+        // Teacher leaderboard management
+        function updateTeacherLeaderboard() {
+            const teacherLeaderboard = document.getElementById('teacherLeaderboard');
+            const sortedStudents = [...students].sort((a, b) => b.xp - a.xp);
+            
+            teacherLeaderboard.innerHTML = '';
+            
+            if (sortedStudents.length === 0) {
+                teacherLeaderboard.innerHTML = '<p class="text-gray-500 text-center py-8">Belum ada siswa yang terdaftar. 📊</p>';
+                return;
+            }
+            
+            sortedStudents.forEach((student, index) => {
+                const medals = ['🥇', '🥈', '🥉'];
+                const medal = medals[index] || '🏅';
+                const colors = ['border-yellow-400 bg-yellow-50', 'border-gray-400 bg-gray-50', 'border-orange-400 bg-orange-50'];
+                const color = colors[index] || 'border-blue-400 bg-blue-50';
+                
+                const item = document.createElement('div');
+                item.className = `leaderboard-item flex items-center justify-between p-4 rounded-lg border-l-4 ${color}`;
+                item.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl">${medal}</span>
+                        <div>
+                            <p class="font-semibold text-gray-800">${student.name}</p>
+                            <p class="text-sm text-gray-600">Bergabung: ${new Date(student.joinDate).toLocaleDateString('id-ID')}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <span class="text-xl font-bold text-gray-700">${student.xp} XP</span>
+                        <button class="delete-student bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors" data-student-id="${student.id}" data-student-name="${student.name}">
+                            🗑️ Hapus
+                        </button>
+                    </div>
+                `;
+                teacherLeaderboard.appendChild(item);
+            });
+        }
+
+        // Reset leaderboard
+        document.getElementById('resetLeaderboard').addEventListener('click', function() {
+            document.getElementById('resetLeaderboardModal').classList.remove('hidden');
+        });
+
+        document.getElementById('cancelResetLeaderboard').addEventListener('click', function() {
+            document.getElementById('resetLeaderboardModal').classList.add('hidden');
+        });
+
+        document.getElementById('confirmResetLeaderboard').addEventListener('click', function() {
+            students = [];
+            localStorage.setItem('students', JSON.stringify(students));
+            updateTeacherLeaderboard();
+            updateLeaderboard();
+            document.getElementById('resetLeaderboardModal').classList.add('hidden');
+            showNotification('🗑️ Leaderboard berhasil direset!', 'success');
+        });
+
+        // Refresh leaderboard
+        document.getElementById('refreshLeaderboard').addEventListener('click', function() {
+            updateTeacherLeaderboard();
+            showNotification('🔄 Leaderboard berhasil direfresh!', 'info');
+        });
+
+        // Delete individual student
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('delete-student')) {
+                const studentId = parseInt(e.target.dataset.studentId);
+                const studentName = e.target.dataset.studentName;
+                
+                if (confirm(`Apakah kamu yakin ingin menghapus siswa "${studentName}" dari leaderboard?`)) {
+                    students = students.filter(student => student.id !== studentId);
+                    localStorage.setItem('students', JSON.stringify(students));
+                    updateTeacherLeaderboard();
+                    updateLeaderboard();
+                    showNotification(`🗑️ Siswa "${studentName}" berhasil dihapus!`, 'success');
+                }
+            }
+        });
+
+        // Update leaderboard
+        function updateLeaderboard() {
+            const leaderboard = document.getElementById('leaderboard');
+            const sortedStudents = [...students].sort((a, b) => b.xp - a.xp);
+            
+            leaderboard.innerHTML = '';
+            
+            if (sortedStudents.length === 0) {
+                leaderboard.innerHTML = '<p class="text-gray-500 text-center py-8">Belum ada siswa yang bermain. Jadilah yang pertama! 🚀</p>';
+                return;
+            }
+            
+            sortedStudents.forEach((student, index) => {
+                const medals = ['🥇', '🥈', '🥉'];
+                const medal = medals[index] || '🏅';
+                const colors = ['border-yellow-400 bg-yellow-50', 'border-gray-400 bg-gray-50', 'border-orange-400 bg-orange-50'];
+                const color = colors[index] || 'border-blue-400 bg-blue-50';
+                
+                const item = document.createElement('div');
+                item.className = `leaderboard-item flex items-center justify-between p-4 rounded-lg border-l-4 ${color}`;
+                item.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl">${medal}</span>
+                        <div>
+                            <p class="font-semibold text-gray-800">${student.name} ${student.id === currentStudent?.id ? '(Kamu)' : ''}</p>
+                            <p class="text-sm text-gray-600">Bergabung: ${new Date(student.joinDate).toLocaleDateString('id-ID')}</p>
+                        </div>
+                    </div>
+                    <span class="text-xl font-bold text-gray-700">${student.xp} XP</span>
+                `;
+                leaderboard.appendChild(item);
+            });
+        }
+
+        // Validasi form guru
+        function validateForm() {
+            const title = document.getElementById('quizTitle').value.trim();
+            const grade = document.getElementById('quizGrade').value;
+            const objective = document.getElementById('learningObjective').value.trim();
+            const difficulty = document.getElementById('difficulty').value;
+            const embedCode = document.getElementById('embedCode').value.trim();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (title && grade && objective && difficulty && embedCode) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                submitBtn.classList.add('bg-purple-500', 'hover:bg-purple-600');
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                submitBtn.classList.remove('bg-purple-500', 'hover:bg-purple-600');
+            }
+        }
+
+        // Event listeners untuk validasi
+        ['quizTitle', 'quizGrade', 'learningObjective', 'difficulty', 'embedCode'].forEach(id => {
+            document.getElementById(id).addEventListener('input', validateForm);
+            document.getElementById(id).addEventListener('change', validateForm);
+        });
+
+        // Submit form
+        document.getElementById('quizForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('quizTitle').value.trim();
+            const grade = document.getElementById('quizGrade').value;
+            const objective = document.getElementById('learningObjective').value.trim();
+            const difficulty = document.getElementById('difficulty').value;
+            const embedCode = document.getElementById('embedCode').value.trim();
+            
+            // Tentukan platform berdasarkan embed code
+            let platform = 'Custom HTML';
+            let icon = '🎮';
+            let color = 'purple';
+            
+            if (embedCode.includes('scratch.mit.edu')) {
+                platform = 'Scratch Game';
+                icon = '🐱';
+                color = 'orange';
+            } else if (embedCode.includes('wordwall.net')) {
+                platform = 'Wordwall Quiz';
+                icon = '🎯';
+                color = 'blue';
+            } else if (embedCode.includes('canva.com')) {
+                platform = 'Canva Interactive';
+                icon = '🎨';
+                color = 'pink';
+            } else if (embedCode.includes('forms.gle') || embedCode.includes('google.com/forms')) {
+                platform = 'Google Form';
+                icon = '📝';
+                color = 'green';
+            } else if (embedCode.includes('quizizz.com')) {
+                platform = 'Quizizz';
+                icon = '⚡';
+                color = 'purple';
+            }
+            
+            // Tentukan XP berdasarkan kesulitan
+            let xp = 50;
+            if (difficulty === 'mudah') xp = 50;
+            else if (difficulty === 'sedang') xp = 75;
+            else if (difficulty === 'sulit') xp = 100;
+            
+            const quiz = {
+                id: Date.now(),
+                title,
+                grade,
+                objective,
+                difficulty,
+                embedCode,
+                platform,
+                icon,
+                color,
+                xp
+            };
+            
+            quizzes.push(quiz);
+            localStorage.setItem('quizzes', JSON.stringify(quizzes));
+            renderQuizzes();
+            
+            // Reset form
+            document.getElementById('quizForm').reset();
+            validateForm();
+            
+            alert('Kuis berhasil ditambahkan! 🎉');
+        });
+
+        // Fungsi filter kuis
+        function applyFilters() {
+            const filterGrade = document.getElementById('filterGrade').value;
+            const filterDifficulty = document.getElementById('filterDifficulty').value;
+            const searchTerm = document.getElementById('searchQuiz').value.toLowerCase().trim();
+            
+            let filteredQuizzes = quizzes;
+            
+            // Filter berdasarkan fase/kelas
+            if (filterGrade) {
+                filteredQuizzes = filteredQuizzes.filter(quiz => quiz.grade === filterGrade);
+            }
+            
+            // Filter berdasarkan tingkat kesulitan
+            if (filterDifficulty) {
+                filteredQuizzes = filteredQuizzes.filter(quiz => quiz.difficulty === filterDifficulty);
+            }
+            
+            // Filter berdasarkan pencarian materi
+            if (searchTerm) {
+                filteredQuizzes = filteredQuizzes.filter(quiz => 
+                    quiz.title.toLowerCase().includes(searchTerm) || 
+                    quiz.objective.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            renderQuizzes(filteredQuizzes);
+        }
+
+        // Event listeners untuk filter
+        document.getElementById('filterGrade').addEventListener('change', applyFilters);
+        document.getElementById('filterDifficulty').addEventListener('change', applyFilters);
+        document.getElementById('searchQuiz').addEventListener('input', applyFilters);
+
+        // Reset filter
+        document.getElementById('resetFilters').addEventListener('click', function() {
+            document.getElementById('filterGrade').value = '';
+            document.getElementById('filterDifficulty').value = '';
+            document.getElementById('searchQuiz').value = '';
+            applyFilters();
+        });
+
+        // Render daftar kuis
+        function renderQuizzes(quizzesToRender = null) {
+            const quizList = document.getElementById('quizList');
+            
+            // Hapus semua kuis yang ditambahkan secara dinamis
+            const dynamicQuizzes = quizList.querySelectorAll('.dynamic-quiz');
+            dynamicQuizzes.forEach(quiz => quiz.remove());
+            
+            const quizzesToShow = quizzesToRender || quizzes;
+            
+            if (quizzesToShow.length === 0) {
+                const emptyMessage = document.createElement('div');
+                emptyMessage.className = 'dynamic-quiz col-span-full text-center py-12';
+                emptyMessage.innerHTML = `
+                    <div class="text-6xl mb-4">📚</div>
+                    <h3 class="text-xl font-semibold text-gray-600 mb-2">Tidak ada kuis ditemukan</h3>
+                    <p class="text-gray-500">${currentRole === 'teacher' ? 'Tambahkan kuis baru untuk memulai!' : 'Coba ubah filter atau kata kunci pencarian'}</p>
+                `;
+                quizList.appendChild(emptyMessage);
+                return;
+            }
+            
+            quizzesToShow.forEach(quiz => {
+                const colorClasses = {
+                    purple: 'from-purple-400 to-purple-600',
+                    blue: 'from-blue-400 to-blue-600',
+                    green: 'from-green-400 to-green-600',
+                    orange: 'from-orange-400 to-orange-600',
+                    pink: 'from-pink-400 to-pink-600'
+                };
+                
+                const buttonColors = {
+                    purple: 'bg-purple-500 hover:bg-purple-600',
+                    blue: 'bg-blue-500 hover:bg-blue-600',
+                    green: 'bg-green-500 hover:bg-green-600',
+                    orange: 'bg-orange-500 hover:bg-orange-600',
+                    pink: 'bg-pink-500 hover:bg-pink-600'
+                };
+
+                const gradeColors = {
+                    purple: 'bg-purple-100 text-purple-800',
+                    blue: 'bg-blue-100 text-blue-800',
+                    green: 'bg-green-100 text-green-800',
+                    orange: 'bg-orange-100 text-orange-800',
+                    pink: 'bg-pink-100 text-pink-800'
+                };
+
+                const difficultyLabels = {
+                    mudah: '🟢 MUDAH',
+                    sedang: '🟡 SEDANG',
+                    sulit: '🔴 SULIT'
+                };
+
+                const difficultyClasses = {
+                    mudah: 'difficulty-easy',
+                    sedang: 'difficulty-medium',
+                    sulit: 'difficulty-hard'
+                };
+                
+                const quizCard = document.createElement('div');
+                quizCard.className = 'quiz-card dynamic-quiz card-hover bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm';
+                quizCard.innerHTML = `
+                    <div class="relative p-6 bg-gradient-to-br ${colorClasses[quiz.color]} text-white text-center">
+                        <span class="text-4xl mb-2 block">${quiz.icon}</span>
+                        <div class="absolute top-2 right-2">
+                            <span class="${difficultyClasses[quiz.difficulty]} text-white px-2 py-1 rounded-full text-xs font-bold">${difficultyLabels[quiz.difficulty]}</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="${gradeColors[quiz.color]} px-2 py-1 rounded-full text-xs font-semibold">${quiz.grade}</span>
+                            <span class="text-xs text-gray-500">${quiz.platform}</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-800 mb-2">${quiz.title}</h3>
+                        <p class="text-gray-600 text-sm mb-4">${quiz.objective}</p>
+                        <div class="space-y-2">
+                            <button class="play-quiz w-full ${buttonColors[quiz.color]} text-white py-2 rounded-lg transition-colors font-semibold" data-xp="${quiz.xp}" data-title="${quiz.title}" data-embed="${encodeURIComponent(quiz.embedCode)}">
+                                🎮 Main Sekarang
+                            </button>
+                            <button class="delete-quiz ${currentRole === 'teacher' ? '' : 'hidden'} w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition-colors font-semibold text-sm" data-quiz-id="${quiz.id}" data-quiz-title="${quiz.title}">
+                                🗑️ Hapus Kuis
+                            </button>
+                        </div>
+                    </div>
+                `;
+                quizList.appendChild(quizCard);
+            });
+        }
+
+        // Event delegation untuk tombol play quiz dan hapus kuis
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('delete-quiz')) {
+                const quizId = parseInt(e.target.dataset.quizId);
+                const quizTitle = e.target.dataset.quizTitle;
+                
+                // Konfirmasi hapus dengan modal custom
+                showDeleteConfirmation(quizId, quizTitle);
+            } else if (e.target.classList.contains('play-quiz')) {
+                if (currentRole === 'student' && currentStudent) {
+                    const xp = parseInt(e.target.dataset.xp);
+                    const title = e.target.dataset.title;
+                    const embedCode = decodeURIComponent(e.target.dataset.embed);
+                    
+                    // Tampilkan modal
+                    document.getElementById('modalTitle').textContent = title;
+                    document.getElementById('quizContent').innerHTML = embedCode;
+                    document.getElementById('quizModal').classList.remove('hidden');
+                    
+                    // Simpan XP untuk nanti
+                    document.getElementById('completeQuiz').dataset.xp = xp;
+                } else if (currentRole === 'student' && !currentStudent) {
+                    alert('Silakan masukkan nama kamu terlebih dahulu! 👨‍🎓');
+                } else {
+                    alert('Silakan ganti ke mode Siswa untuk bermain kuis! 👨‍🎓');
+                }
+            }
+        });
+
+        // Close modal
+        document.getElementById('closeModal').addEventListener('click', function() {
+            document.getElementById('quizModal').classList.add('hidden');
+        });
+
+        // Complete quiz dan dapatkan XP
+        document.getElementById('completeQuiz').addEventListener('click', function() {
+            const xp = parseInt(this.dataset.xp);
+            currentStudent.xp += xp;
+            
+            // Update localStorage
+            const studentIndex = students.findIndex(s => s.id === currentStudent.id);
+            students[studentIndex] = currentStudent;
+            localStorage.setItem('students', JSON.stringify(students));
+            
+            document.getElementById('xpCount').textContent = currentStudent.xp;
+            document.getElementById('xpCount').classList.add('xp-animation');
+            
+            setTimeout(() => {
+                document.getElementById('xpCount').classList.remove('xp-animation');
+            }, 600);
+            
+            document.getElementById('quizModal').classList.add('hidden');
+            updateLeaderboard();
+            
+            // Tampilkan notifikasi XP
+            showNotification(`🎉 Selamat ${currentStudent.name}! Kamu mendapat ${xp} XP!`, 'success');
+        });
+
+        // Fungsi untuk menampilkan konfirmasi hapus
+        function showDeleteConfirmation(quizId, quizTitle) {
+            document.getElementById('deleteQuizTitle').textContent = quizTitle;
+            document.getElementById('deleteModal').classList.remove('hidden');
+            
+            // Simpan ID kuis yang akan dihapus
+            document.getElementById('confirmDelete').dataset.quizId = quizId;
+        }
+
+        // Event listener untuk modal konfirmasi hapus
+        document.getElementById('cancelDelete').addEventListener('click', function() {
+            document.getElementById('deleteModal').classList.add('hidden');
+        });
+
+        document.getElementById('confirmDelete').addEventListener('click', function() {
+            const quizId = parseInt(this.dataset.quizId);
+            
+            // Hapus kuis dari array
+            quizzes = quizzes.filter(quiz => quiz.id !== quizId);
+            
+            // Update localStorage
+            localStorage.setItem('quizzes', JSON.stringify(quizzes));
+            
+            // Render ulang daftar kuis
+            renderQuizzes();
+            
+            // Tutup modal
+            document.getElementById('deleteModal').classList.add('hidden');
+            
+            // Tampilkan notifikasi
+            showNotification('🗑️ Kuis berhasil dihapus!', 'success');
+        });
+
+        // Update tampilan tombol hapus berdasarkan role
+        function updateDeleteButtons() {
+            const deleteButtons = document.querySelectorAll('.delete-quiz');
+            deleteButtons.forEach(button => {
+                if (currentRole === 'teacher') {
+                    button.classList.remove('hidden');
+                } else {
+                    button.classList.add('hidden');
+                }
+            });
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            
+            let bgColor = 'bg-blue-500';
+            if (type === 'success') bgColor = 'bg-green-500';
+            else if (type === 'error') bgColor = 'bg-red-500';
+            else if (type === 'warning') bgColor = 'bg-yellow-500';
+            
+            notification.className = `notification-slide fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 max-w-sm`;
+            notification.innerHTML = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100px)';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Inisialisasi
+        validateForm();
+        renderQuizzes();
+        updateDeleteButtons();
+        
+        // Start in teacher mode by default but require authentication
+        switchToStudentMode();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98fa16f425f4f93b',t:'MTc2MDY0NDI3My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
